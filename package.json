@@ -1,0 +1,26 @@
+{
+  "name": "streamhub-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:host": "npm run dev -w @streamhub/host",
+    "dev:browser": "npm run dev -w @streamhub/video-browser",
+    "dev:player": "npm run dev -w @streamhub/player",
+    "dev:community": "npm run dev -w @streamhub/community",
+    "dev": "concurrently \"npm:dev:*\"",
+    "build": "npm run build --workspaces --if-present",
+    "preview": "npm run preview --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13"
+  }
+}
