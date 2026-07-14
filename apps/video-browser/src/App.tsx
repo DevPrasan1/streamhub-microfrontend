@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePlayerStore, useUIStore } from '@streamhub/shared-store';
 import { VideoCard, Tabs, Dropdown, Spinner } from '@streamhub/shared-ui';
@@ -57,8 +57,94 @@ export default function App() {
 
   const { setSelectedChannel } = usePlayerStore();
   const { searchQuery } = useUIStore();
+
+  const [channels, setChannels] = useState<Channel[]>(MOCK_CHANNELS);
+  const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCountry, setSelectedCountry] = useState('All');
+
+  useEffect(() => {
+    const loadApiData = async () => {
+      try {
+        setLoading(true);
+        // Fetch streams
+        const streamsRes = await fetch('https://iptv-org.github.io/api/streams.json');
+        if (!streamsRes.ok) throw new Error('Failed to load streams');
+        const streams = await streamsRes.json();
+
+        // Limit parsing count for fast load times
+        const activeStreams = streams.slice(0, 1000);
+
+        // Fetch channels
+        const channelsRes = await fetch('https://iptv-org.github.io/api/channels.json');
+        if (!channelsRes.ok) throw new Error('Failed to load channels');
+        const channelsData = await channelsRes.json();
+
+        // Fetch logos
+        const logosRes = await fetch('https://iptv-org.github.io/api/logos.json');
+        const logos = logosRes.ok ? await logosRes.json() : [];
+
+        // Build lookup maps
+        const channelMap = new Map();
+        channelsData.forEach((ch: any) => {
+          channelMap.set(ch.id, ch);
+        });
+
+        const logoMap = new Map();
+        logos.forEach((l: any) => {
+          logoMap.set(l.channel, l.url);
+        });
+
+        const merged: Channel[] = [];
+        for (const s of activeStreams) {
+          if (!s.channel || !s.url) continue;
+          const ch = channelMap.get(s.channel);
+          if (ch) {
+            // Dynamic fallback logos
+            const unsplashKeywords: Record<string, string> = {
+              science: 'space',
+              news: 'newsroom',
+              movies: 'cinema',
+              sports: 'stadium',
+              music: 'concert'
+            };
+            const cat = ch.categories?.[0]?.toLowerCase() || 'general';
+            const kw = unsplashKeywords[cat] || 'television';
+            const defaultLogo = `https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?auto=format&fit=crop&w=600&q=80`;
+
+            merged.push({
+              id: ch.id,
+              name: ch.name,
+              url: s.url,
+              logo: logoMap.get(ch.id) || defaultLogo,
+              category: ch.categories?.[0] ? ch.categories[0].charAt(0).toUpperCase() + ch.categories[0].slice(1) : 'General',
+              country: ch.country || 'Global',
+              language: ch.languages?.[0] || 'en',
+              description: ch.website || ''
+            });
+          }
+          if (merged.length >= 80) break; // Limit to top 80 streams for UI performance
+        }
+
+        if (merged.length > 0) {
+          // Prepend NASA and main mocks for stability
+          const existingIds = new Set(merged.map(c => c.id));
+          const withMocks = [
+            ...MOCK_CHANNELS.filter(m => !existingIds.has(m.id)),
+            ...merged
+          ];
+          setChannels(withMocks);
+        }
+      } catch (err) {
+        console.warn('IPTV-org API load failed. Using offline fallback mocks.', err);
+        setChannels(MOCK_CHANNELS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApiData();
+  }, []);
 
   const handleChannelClick = (channel: Channel) => {
     setSelectedChannel(channel);
@@ -69,10 +155,11 @@ export default function App() {
     }
   };
 
-  const categories = ['All', 'Science', 'News', 'Entertainment'];
-  const countries = ['All', 'US', 'FR', 'DE', 'GB'];
+  // Extract categories and countries dynamically from currently loaded channels list
+  const categories = ['All', ...Array.from(new Set(channels.map((c) => c.category).filter(Boolean)))].slice(0, 8);
+  const countries = ['All', ...Array.from(new Set(channels.map((c) => c.country).filter(Boolean)))].slice(0, 15);
 
-  const filteredChannels = MOCK_CHANNELS.filter((channel) => {
+  const filteredChannels = channels.filter((channel) => {
     const matchesSearch = searchQuery
       ? channel.name.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
@@ -112,7 +199,11 @@ export default function App() {
       </div>
 
       {/* Channels Grid */}
-      {filteredChannels.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center p-12">
+          <Spinner />
+        </div>
+      ) : filteredChannels.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredChannels.map((channel) => (
             <VideoCard
