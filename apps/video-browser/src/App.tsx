@@ -63,6 +63,10 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCountry, setSelectedCountry] = useState('All');
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16; // 4 columns x 4 rows layout
+
   useEffect(() => {
     const loadApiData = async () => {
       try {
@@ -71,9 +75,6 @@ export default function App() {
         const streamsRes = await fetch('https://iptv-org.github.io/api/streams.json');
         if (!streamsRes.ok) throw new Error('Failed to load streams');
         const streams = await streamsRes.json();
-
-        // Limit parsing count for fast load times
-        const activeStreams = streams.slice(0, 1000);
 
         // Fetch channels
         const channelsRes = await fetch('https://iptv-org.github.io/api/channels.json');
@@ -96,7 +97,7 @@ export default function App() {
         });
 
         const merged: Channel[] = [];
-        for (const s of activeStreams) {
+        for (const s of streams) {
           if (!s.channel || !s.url) continue;
           const ch = channelMap.get(s.channel);
           if (ch) {
@@ -123,7 +124,6 @@ export default function App() {
               description: ch.website || ''
             });
           }
-          if (merged.length >= 80) break; // Limit to top 80 streams for UI performance
         }
 
         if (merged.length > 0) {
@@ -155,9 +155,16 @@ export default function App() {
     }
   };
 
-  // Extract categories and countries dynamically from currently loaded channels list
-  const categories = ['All', ...Array.from(new Set(channels.map((c) => c.category).filter(Boolean)))].slice(0, 8);
-  const countries = ['All', ...Array.from(new Set(channels.map((c) => c.country).filter(Boolean)))].slice(0, 15);
+  // Reset page to 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeCategory, selectedCountry]);
+
+  // Extract categories dynamically from currently loaded channels
+  const categories = ['All', ...Array.from(new Set(channels.map((c) => c.category).filter(Boolean))).sort()];
+  
+  // Extract countries dynamically from currently loaded channels
+  const countries = ['All', ...Array.from(new Set(channels.map((c) => c.country).filter(Boolean))).sort()];
 
   const filteredChannels = channels.filter((channel) => {
     const matchesSearch = searchQuery
@@ -168,32 +175,44 @@ export default function App() {
     return matchesSearch && matchesCategory && matchesCountry;
   });
 
+  // Calculate pagination coordinates
+  const totalPages = Math.ceil(filteredChannels.length / itemsPerPage);
+  const paginatedChannels = filteredChannels.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="flex flex-col gap-6">
       {/* Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-        <Tabs
-          tabs={categories.map((c) => ({ id: c, label: c }))}
-          activeTab={activeCategory}
-          onChange={setActiveCategory}
-        />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+        <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
+          <Tabs
+            tabs={categories.map((c) => ({ id: c, label: c }))}
+            activeTab={activeCategory}
+            onChange={setActiveCategory}
+            className="flex-nowrap border-b-0 whitespace-nowrap overflow-x-auto"
+          />
+        </div>
 
-        <div className="flex items-center gap-2 text-sm text-zinc-400">
+        <div className="flex items-center gap-2 text-sm text-zinc-400 shrink-0">
           <span>Country:</span>
           <Dropdown
             label={selectedCountry === 'All' ? 'Select Country' : selectedCountry}
           >
-            {countries.map((country) => (
-              <button
-                key={country}
-                onClick={() => setSelectedCountry(country)}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-zinc-800 hover:text-zinc-100 transition ${
-                  selectedCountry === country ? 'text-indigo-400 font-semibold' : 'text-zinc-300'
-                }`}
-              >
-                {country === 'All' ? 'All Countries' : country}
-              </button>
-            ))}
+            <div className="max-h-60 overflow-y-auto">
+              {countries.map((country) => (
+                <button
+                  key={country}
+                  onClick={() => setSelectedCountry(country)}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-zinc-800 hover:text-zinc-100 transition ${
+                    selectedCountry === country ? 'text-indigo-400 font-semibold' : 'text-zinc-300'
+                  }`}
+                >
+                  {country === 'All' ? 'All Countries' : country}
+                </button>
+              ))}
+            </div>
           </Dropdown>
         </div>
       </div>
@@ -203,9 +222,9 @@ export default function App() {
         <div className="flex justify-center p-12">
           <Spinner />
         </div>
-      ) : filteredChannels.length > 0 ? (
+      ) : paginatedChannels.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredChannels.map((channel) => (
+          {paginatedChannels.map((channel) => (
             <VideoCard
               key={channel.id}
               channel={channel}
@@ -216,6 +235,32 @@ export default function App() {
       ) : (
         <div className="text-center py-12 text-zinc-500 border border-zinc-800 border-dashed rounded-xl">
           No channels match your filters.
+        </div>
+      )}
+
+      {/* Pagination Bar */}
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 bg-zinc-900/40 px-6 py-4 rounded-xl border border-zinc-800">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+          >
+            ← Previous
+          </button>
+
+          <span className="text-sm font-medium text-zinc-400 text-center">
+            Page <span className="text-zinc-200">{currentPage}</span> of <span className="text-zinc-200">{totalPages}</span>
+            <span className="hidden sm:inline"> ({filteredChannels.length} channels total)</span>
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+          >
+            Next →
+          </button>
         </div>
       )}
     </div>
