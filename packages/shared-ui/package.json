@@ -1,0 +1,13 @@
+{
+  "name": "@streamhub/shared-ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.tsx",
+  "types": "src/index.tsx",
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@streamhub/shared-types": "*",
+    "@streamhub/shared-utils": "*"
+  }
+}
