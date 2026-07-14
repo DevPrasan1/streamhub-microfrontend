@@ -13,7 +13,8 @@
     "dev:community": "npm run dev -w @streamhub/community",
     "dev": "concurrently \"npm:dev:*\"",
     "build": "npm run build --workspaces --if-present",
-    "preview": "npm run preview --workspaces --if-present"
+    "preview": "npm run preview --workspaces --if-present",
+    "start": "npm run build && concurrently \"npm run dev:host\" \"npm run preview -w @streamhub/video-browser\" \"npm run preview -w @streamhub/player\" \"npm run preview -w @streamhub/community\""
   },
   "devDependencies": {
     "concurrently": "^9.0.1",

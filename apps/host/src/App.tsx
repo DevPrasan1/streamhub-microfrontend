@@ -106,13 +106,18 @@ function MainLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Link to="/" className="text-xl font-extrabold tracking-wider bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-            StreamHub
+          <Link to="/" className="flex items-center gap-2.5 text-xl font-extrabold tracking-wider text-zinc-100">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+              </svg>
+            </div>
+            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">StreamHub</span>
           </Link>
         </div>
 
         <div className="w-96 max-w-full hidden md:block">
-          <Search placeholder="Search channels..." onSearch={setSearchQuery} />
+          <Search placeholder="Search by name or country..." onSearch={setSearchQuery} />
         </div>
 
         <div className="flex items-center gap-4">

@@ -57,11 +57,17 @@ export default function App() {
 
   const { setSelectedChannel } = usePlayerStore();
   const { searchQuery } = useUIStore();
+  const [localSearch, setLocalSearch] = useState('');
 
   const [channels, setChannels] = useState<Channel[]>(MOCK_CHANNELS);
+  const [countryInfo, setCountryInfo] = useState<Record<string, { flag: string; name: string }>>({});
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedCountry, setSelectedCountry] = useState('All');
+
+  // Detect standalone mode (i.e. not embedded in host on port 5000)
+  const isStandalone = typeof window !== 'undefined' && window.location.port !== '5000';
+  const activeSearch = isStandalone ? localSearch : searchQuery;
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -85,6 +91,20 @@ export default function App() {
         const logosRes = await fetch('https://iptv-org.github.io/api/logos.json');
         const logos = logosRes.ok ? await logosRes.json() : [];
 
+        // Fetch countries
+        const countriesRes = await fetch('https://iptv-org.github.io/api/countries.json');
+        const countriesData = countriesRes.ok ? await countriesRes.json() : [];
+        const infoMap: Record<string, { flag: string; name: string }> = {};
+        countriesData.forEach((c: any) => {
+          if (c.code) {
+            infoMap[c.code.toUpperCase()] = {
+              flag: c.flag || '🏳️',
+              name: c.name || c.code
+            };
+          }
+        });
+        setCountryInfo(infoMap);
+
         // Build lookup maps
         const channelMap = new Map();
         channelsData.forEach((ch: any) => {
@@ -97,10 +117,12 @@ export default function App() {
         });
 
         const merged: Channel[] = [];
+        const seenIds = new Set();
         for (const s of streams) {
           if (!s.channel || !s.url) continue;
           const ch = channelMap.get(s.channel);
-          if (ch) {
+          if (ch && !seenIds.has(ch.id)) {
+            seenIds.add(ch.id);
             // Dynamic fallback logos
             const unsplashKeywords: Record<string, string> = {
               science: 'space',
@@ -158,7 +180,7 @@ export default function App() {
   // Reset page to 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, activeCategory, selectedCountry]);
+  }, [activeSearch, activeCategory, selectedCountry]);
 
   // Extract categories dynamically from currently loaded channels
   const categories = ['All', ...Array.from(new Set(channels.map((c) => c.category).filter(Boolean))).sort()];
@@ -167,8 +189,10 @@ export default function App() {
   const countries = ['All', ...Array.from(new Set(channels.map((c) => c.country).filter(Boolean))).sort()];
 
   const filteredChannels = channels.filter((channel) => {
-    const matchesSearch = searchQuery
-      ? channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = activeSearch
+      ? channel.name.toLowerCase().includes(activeSearch.toLowerCase()) ||
+        channel.country.toLowerCase().includes(activeSearch.toLowerCase()) ||
+        (countryInfo[channel.country.toUpperCase()]?.name || '').toLowerCase().includes(activeSearch.toLowerCase())
       : true;
     const matchesCategory = activeCategory === 'All' || channel.category === activeCategory;
     const matchesCountry = selectedCountry === 'All' || channel.country === selectedCountry;
@@ -185,7 +209,7 @@ export default function App() {
   return (
     <div className="flex flex-col gap-6">
       {/* Filters Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
         <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
           <Tabs
             tabs={categories.map((c) => ({ id: c, label: c }))}
@@ -195,23 +219,41 @@ export default function App() {
           />
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-zinc-400 shrink-0">
+        <div className="flex flex-wrap items-center gap-4 shrink-0">
+          {isStandalone && (
+            <div className="w-full sm:w-64">
+              <Search
+                placeholder="Search name or country..."
+                onChange={(e) => setLocalSearch(e.target.value)}
+              />
+            </div>
+          )}
           <span>Country:</span>
           <Dropdown
-            label={selectedCountry === 'All' ? 'Select Country' : selectedCountry}
+            label={
+              selectedCountry === 'All'
+                ? '🏳️ All Countries'
+                : `${countryInfo[selectedCountry.toUpperCase()]?.flag || '🏳️'} ${countryInfo[selectedCountry.toUpperCase()]?.name || selectedCountry}`
+            }
           >
-            <div className="max-h-60 overflow-y-auto">
-              {countries.map((country) => (
-                <button
-                  key={country}
-                  onClick={() => setSelectedCountry(country)}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-zinc-800 hover:text-zinc-100 transition ${
-                    selectedCountry === country ? 'text-indigo-400 font-semibold' : 'text-zinc-300'
-                  }`}
-                >
-                  {country === 'All' ? 'All Countries' : country}
-                </button>
-              ))}
+            <div className="max-h-60 overflow-y-auto min-w-[200px] bg-zinc-900">
+              {countries.map((country) => {
+                const info = countryInfo[country.toUpperCase()];
+                const flag = info?.flag || '🏳️';
+                const name = info?.name || country;
+                return (
+                  <button
+                    key={country}
+                    onClick={() => setSelectedCountry(country)}
+                    className={`w-full text-left px-4 py-2 text-sm hover:bg-zinc-800 hover:text-zinc-100 transition flex items-center gap-2 ${
+                      selectedCountry === country ? 'text-indigo-400 font-semibold' : 'text-zinc-300'
+                    }`}
+                  >
+                    <span>{country === 'All' ? '🏳️' : flag}</span>
+                    <span className="truncate">{country === 'All' ? 'All Countries' : name}</span>
+                  </button>
+                );
+              })}
             </div>
           </Dropdown>
         </div>

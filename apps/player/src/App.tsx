@@ -6,12 +6,26 @@ export default function App() {
   const { selectedChannel, volume, isPlaying, playbackRate, setVolume, setIsPlaying, setPlaybackRate } = usePlayerStore();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [stats, setStats] = useState({ buffered: 0, droppedFrames: 0 });
+  const [streamError, setStreamError] = useState<string | null>(null);
+
+  // Auto-play whenever selected channel changes
+  useEffect(() => {
+    if (selectedChannel?.url) {
+      setStreamError(null);
+      setIsPlaying(true);
+    }
+  }, [selectedChannel?.url, setIsPlaying]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !selectedChannel?.url) return;
 
     let hls: Hls | null = null;
+
+    const handlePlaybackError = () => {
+      setStreamError('This live stream is currently offline, geoblocked, or unavailable.');
+      setIsPlaying(false);
+    };
 
     if (Hls.isSupported() && selectedChannel.url.includes('.m3u8')) {
       hls = new Hls();
@@ -20,7 +34,11 @@ export default function App() {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         if (isPlaying) {
-          video.play().catch((err) => console.log('Autoplay blocked:', err));
+          video.play().catch(() => {
+            // Autoplay blocked by browser policy - retry muted
+            video.muted = true;
+            video.play().catch((err) => console.log('Autoplay blocked completely:', err));
+          });
         }
       });
 
@@ -37,6 +55,7 @@ export default function App() {
               break;
             default:
               console.error('HLS fatal error, cannot recover.');
+              handlePlaybackError();
               break;
           }
         }
@@ -45,30 +64,37 @@ export default function App() {
       video.src = selectedChannel.url;
       video.addEventListener('loadedmetadata', () => {
         if (isPlaying) {
-          video.play().catch((err) => console.log('Autoplay blocked:', err));
+          video.play().catch(() => {
+            // Autoplay blocked by browser policy - retry muted
+            video.muted = true;
+            video.play().catch((err) => console.log('Autoplay blocked completely:', err));
+          });
         }
       });
+      video.addEventListener('error', handlePlaybackError);
     } else {
       video.src = selectedChannel.url;
+      video.addEventListener('error', handlePlaybackError);
     }
 
     return () => {
       if (hls) {
         hls.destroy();
       }
+      video.removeEventListener('error', handlePlaybackError);
     };
   }, [selectedChannel?.url]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || streamError) return;
 
     if (isPlaying) {
       video.play().catch(() => setIsPlaying(false));
     } else {
       video.pause();
     }
-  }, [isPlaying, setIsPlaying]);
+  }, [isPlaying, streamError, setIsPlaying]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -103,6 +129,7 @@ export default function App() {
   }, []);
 
   const handlePlayPause = () => {
+    if (streamError) return;
     setIsPlaying(!isPlaying);
   };
 
@@ -136,6 +163,24 @@ export default function App() {
           onClick={handlePlayPause}
         />
 
+        {/* Error Overlay */}
+        {streamError && (
+          <div className="absolute inset-0 bg-zinc-950/95 flex flex-col items-center justify-center text-center p-6 z-20 rounded-xl">
+            <span className="text-4xl mb-4">⚠️</span>
+            <h3 className="text-lg font-semibold text-zinc-100 mb-2">Live Stream Offline</h3>
+            <p className="text-sm text-zinc-400 max-w-xs mb-6">{streamError}</p>
+            <button 
+              onClick={() => {
+                setStreamError(null);
+                setIsPlaying(true);
+              }}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition font-medium text-sm shadow-md"
+            >
+              Retry Connection
+            </button>
+          </div>
+        )}
+
         {/* Video Overlay Controls */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
           <div className="flex items-center justify-between gap-4">
@@ -143,6 +188,7 @@ export default function App() {
               <button
                 onClick={handlePlayPause}
                 className="text-white hover:text-indigo-400 transition"
+                disabled={!!streamError}
               >
                 {isPlaying ? (
                   <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">

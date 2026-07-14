@@ -13,7 +13,7 @@ export default defineConfig({
         player: 'http://localhost:5002/assets/remoteEntry.js',
         community: 'http://localhost:5003/assets/remoteEntry.js',
       },
-      shared: ['react', 'react-dom', 'zustand'],
+      shared: ['react', 'react-dom', 'zustand', 'react-router-dom', '@streamhub/shared-store'],
     }),
   ],
   build: {

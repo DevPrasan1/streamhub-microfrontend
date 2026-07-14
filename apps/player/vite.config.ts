@@ -12,7 +12,7 @@ export default defineConfig({
       exposes: {
         './PlayerApp': './src/App.tsx',
       },
-      shared: ['react', 'react-dom', 'zustand'],
+      shared: ['react', 'react-dom', 'zustand', 'react-router-dom', '@streamhub/shared-store'],
     }),
   ],
   build: {
