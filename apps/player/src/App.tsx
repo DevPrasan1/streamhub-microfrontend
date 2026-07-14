@@ -23,9 +23,11 @@ export default function App() {
     let hls: Hls | null = null;
 
     const handlePlaybackError = () => {
-      setStreamError('This live stream is currently offline, geoblocked, or unavailable.');
+      setStreamError('Stream not available');
       setIsPlaying(false);
     };
+
+    let networkRetryCount = 0;
 
     if (Hls.isSupported() && selectedChannel.url.includes('.m3u8')) {
       hls = new Hls();
@@ -43,11 +45,27 @@ export default function App() {
       });
 
       hls.on(Hls.Events.ERROR, (_event, data) => {
+        if (
+          data.response?.code === 404 ||
+          data.response?.code === 403 ||
+          data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR ||
+          data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR
+        ) {
+          handlePlaybackError();
+          return;
+        }
+
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.warn('HLS network error, attempting recovery...');
-              hls?.startLoad();
+              if (networkRetryCount >= 3) {
+                console.error('Failed to recover from HLS network errors after 3 attempts.');
+                handlePlaybackError();
+              } else {
+                networkRetryCount++;
+                console.warn(`HLS network error, attempting recovery (${networkRetryCount}/3)...`);
+                hls?.startLoad();
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               console.warn('HLS media error, attempting recovery...');

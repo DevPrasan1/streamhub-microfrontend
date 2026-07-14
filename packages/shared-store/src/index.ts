@@ -9,12 +9,28 @@ interface AuthState {
   setLoading: (loading: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  loading: true,
-  setUser: (user) => set({ user }),
-  setLoading: (loading) => set({ loading }),
-}));
+const getAuthStore = () => {
+  const key = '__streamhub_auth_store__';
+  if (typeof window !== 'undefined') {
+    if (!(window as any)[key]) {
+      (window as any)[key] = create<AuthState>((set) => ({
+        user: null,
+        loading: true,
+        setUser: (user) => set({ user }),
+        setLoading: (loading) => set({ loading }),
+      }));
+    }
+    return (window as any)[key];
+  }
+  return create<AuthState>((set) => ({
+    user: null,
+    loading: true,
+    setUser: (user) => set({ user }),
+    setLoading: (loading) => set({ loading }),
+  }));
+};
+
+export const useAuthStore = getAuthStore();
 
 // --- PLAYER STORE ---
 interface PlayerState {
@@ -28,16 +44,36 @@ interface PlayerState {
   setPlaybackRate: (playbackRate: number) => void;
 }
 
-export const usePlayerStore = create<PlayerState>((set) => ({
-  selectedChannel: null,
-  volume: 1.0,
-  isPlaying: false,
-  playbackRate: 1.0,
-  setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
-  setVolume: (volume) => set({ volume }),
-  setIsPlaying: (isPlaying) => set({ isPlaying }),
-  setPlaybackRate: (playbackRate) => set({ playbackRate }),
-}));
+const getPlayerStore = () => {
+  const key = '__streamhub_player_store__';
+  if (typeof window !== 'undefined') {
+    if (!(window as any)[key]) {
+      (window as any)[key] = create<PlayerState>((set) => ({
+        selectedChannel: null,
+        volume: 1.0,
+        isPlaying: false,
+        playbackRate: 1.0,
+        setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
+        setVolume: (volume) => set({ volume }),
+        setIsPlaying: (isPlaying) => set({ isPlaying }),
+        setPlaybackRate: (playbackRate) => set({ playbackRate }),
+      }));
+    }
+    return (window as any)[key];
+  }
+  return create<PlayerState>((set) => ({
+    selectedChannel: null,
+    volume: 1.0,
+    isPlaying: false,
+    playbackRate: 1.0,
+    setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
+    setVolume: (volume) => set({ volume }),
+    setIsPlaying: (isPlaying) => set({ isPlaying }),
+    setPlaybackRate: (playbackRate) => set({ playbackRate }),
+  }));
+};
+
+export const usePlayerStore = getPlayerStore();
 
 // --- UI STORE ---
 interface UIState {
@@ -53,16 +89,38 @@ interface UIState {
   setLanguage: (language: string) => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  theme: 'dark',
-  sidebarOpen: true,
-  searchQuery: '',
-  language: 'en',
-  toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
-  setTheme: (theme) => set({ theme }),
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-  setSearchQuery: (searchQuery) => set({ searchQuery }),
-  setLanguage: (language) => set({ language }),
-}));
+const getUIStore = () => {
+  const key = '__streamhub_ui_store__';
+  if (typeof window !== 'undefined') {
+    if (!(window as any)[key]) {
+      (window as any)[key] = create<UIState>((set) => ({
+        theme: 'dark',
+        sidebarOpen: true,
+        searchQuery: '',
+        language: 'en',
+        toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+        setTheme: (theme) => set({ theme }),
+        toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+        setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+        setSearchQuery: (searchQuery) => set({ searchQuery }),
+        setLanguage: (language) => set({ language }),
+      }));
+    }
+    return (window as any)[key];
+  }
+  return create<UIState>((set) => ({
+    theme: 'dark',
+    sidebarOpen: true,
+    searchQuery: '',
+    language: 'en',
+    toggleTheme: () => set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
+    setTheme: (theme) => set({ theme }),
+    toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+    setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+    setSearchQuery: (searchQuery) => set({ searchQuery }),
+    setLanguage: (language) => set({ language }),
+  }));
+};
+
+export const useUIStore = getUIStore();
 export type { AuthState, PlayerState, UIState };

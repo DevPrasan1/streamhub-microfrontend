@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore, usePlayerStore, useUIStore } from '@streamhub/shared-store';
 import { Button, Avatar, Search, Spinner } from '@streamhub/shared-ui';
@@ -45,19 +45,93 @@ class ErrorBoundary extends React.Component<
 function WatchPage() {
   const { channelId } = useParams<{ channelId: string }>();
   const { selectedChannel, setSelectedChannel } = usePlayerStore();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!selectedChannel && channelId) {
-      setSelectedChannel({
-        id: channelId,
-        name: `Live Channel #${channelId}`,
-        url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-        category: 'Entertainment',
-      });
+      const fetchChannelDetails = async () => {
+        try {
+          setLoading(true);
+          const localMocks: Record<string, any> = {
+            nasa: {
+              id: 'nasa',
+              name: 'NASA TV',
+              url: 'https://nasatv-lh.akamaihd.net/i/NASA_101@319270/index_1000_av-p.m3u8',
+              category: 'Science'
+            },
+            france24: {
+              id: 'france24',
+              name: 'France 24 English',
+              url: 'https://static.france24.com/live/F24_EN_LO_HLS/live_tv.m3u8',
+              category: 'News'
+            },
+            dw: {
+              id: 'dw',
+              name: 'Deutsche Welle English',
+              url: 'https://dwstream72-lh.akamaihd.net/i/dwtv_eng@352781/master.m3u8',
+              category: 'News'
+            },
+            sky: {
+              id: 'sky',
+              name: 'Sky News UK',
+              url: 'https://sky-news.akamaihd.net/i/skynews_1@39281/master.m3u8',
+              category: 'News'
+            }
+          };
+
+          if (localMocks[channelId]) {
+            setSelectedChannel(localMocks[channelId]);
+            return;
+          }
+
+          // Fetch from live IPTV database
+          const streamsRes = await fetch('https://iptv-org.github.io/api/streams.json');
+          if (!streamsRes.ok) throw new Error();
+          const streams = await streamsRes.json();
+          const targetStream = streams.find((s: any) => s.channel === channelId);
+
+          if (targetStream) {
+            const channelsRes = await fetch('https://iptv-org.github.io/api/channels.json');
+            if (channelsRes.ok) {
+              const channelsData = await channelsRes.json();
+              const ch = channelsData.find((c: any) => c.id === channelId);
+              if (ch) {
+                setSelectedChannel({
+                  id: ch.id,
+                  name: ch.name,
+                  url: targetStream.url,
+                  category: ch.categories?.[0] ? ch.categories[0].charAt(0).toUpperCase() + ch.categories[0].slice(1) : 'General'
+                });
+                return;
+              }
+            }
+          }
+
+          // Fallback if not found
+          setSelectedChannel({
+            id: channelId,
+            name: `Live Channel #${channelId}`,
+            url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+            category: 'Entertainment',
+          });
+        } catch (err) {
+          console.warn('Failed to resolve channel details on page reload:', err);
+          setSelectedChannel({
+            id: channelId,
+            name: `Live Channel #${channelId}`,
+            url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
+            category: 'Entertainment',
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchChannelDetails();
     }
   }, [channelId, selectedChannel, setSelectedChannel]);
 
-  if (!selectedChannel) {
+  if (loading || !selectedChannel) {
     return (
       <div className="flex items-center justify-center h-full">
         <Spinner />
