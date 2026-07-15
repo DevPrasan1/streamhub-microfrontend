@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, Channel } from '@streamhub/shared-types';
+import { User, Channel } from '@mfe/shared-types';
 
 // --- AUTH STORE ---
 interface AuthState {
@@ -10,7 +10,7 @@ interface AuthState {
 }
 
 const getAuthStore = () => {
-  const key = '__streamhub_auth_store__';
+  const key = '__mfe_auth_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
       (window as any)[key] = create<AuthState>((set) => ({
@@ -45,7 +45,7 @@ interface PlayerState {
 }
 
 const getPlayerStore = () => {
-  const key = '__streamhub_player_store__';
+  const key = '__mfe_player_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
       (window as any)[key] = create<PlayerState>((set) => ({
@@ -90,7 +90,7 @@ interface UIState {
 }
 
 const getUIStore = () => {
-  const key = '__streamhub_ui_store__';
+  const key = '__mfe_ui_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
       (window as any)[key] = create<UIState>((set) => ({

@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePlayerStore } from '@streamhub/shared-store';
+import { usePlayerStore } from '@mfe/shared-store';
 
 function getYoutubeEmbedUrl(url: string): string | null {
   if (!url) return null;

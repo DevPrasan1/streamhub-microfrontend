@@ -1,5 +1,5 @@
 {
-  "name": "@streamhub/shared-ui",
+  "name": "@mfe/shared-ui",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.tsx",
@@ -7,8 +7,8 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@streamhub/shared-types": "*",
-    "@streamhub/shared-utils": "*"
+    "@mfe/shared-types": "*",
+    "@mfe/shared-utils": "*"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",

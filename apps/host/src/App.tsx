@@ -1,9 +1,9 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuthStore, usePlayerStore, useUIStore } from '@streamhub/shared-store';
-import { Button, Avatar, Search, Spinner } from '@streamhub/shared-ui';
-import { YT_CHANNELS } from '@streamhub/shared-utils';
-import { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@streamhub/firebase';
+import { useAuthStore, usePlayerStore, useUIStore } from '@mfe/shared-store';
+import { Button, Avatar, Search, Spinner } from '@mfe/shared-ui';
+import { YT_CHANNELS } from '@mfe/shared-utils';
+import { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@mfe/firebase';
 
 // Lazy load Remotes
 const VideoBrowserApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
@@ -143,7 +143,7 @@ function MainLayout() {
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
               </svg>
             </div>
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">StreamHub</span>
+            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">MFE Boilerplate</span>
           </Link>
         </div>
 

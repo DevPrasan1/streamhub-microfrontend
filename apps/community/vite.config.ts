@@ -12,7 +12,7 @@ export default defineConfig({
       exposes: {
         './CommunityApp': './src/App.tsx',
       },
-      shared: ['react', 'react-dom', 'zustand', 'react-router-dom', '@streamhub/shared-store'],
+      shared: ['react', 'react-dom', 'zustand', 'react-router-dom', '@mfe/shared-store'],
     }),
   ],
   build: {

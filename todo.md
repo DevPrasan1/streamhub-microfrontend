@@ -5,7 +5,7 @@ Based on the specifications in the **[README.md](file:///Users/devprasan/Documen
 
 ---
 
-## 📊 StreamHub Development Status
+## 📊 MFE Boilerplate Development Status
 
 | Feature Area | Specifications in README | Status | Implementation Details |
 | :--- | :--- | :---: | :--- |

@@ -1,5 +1,5 @@
 {
-  "name": "@streamhub/shared-utils",
+  "name": "@mfe/shared-utils",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",

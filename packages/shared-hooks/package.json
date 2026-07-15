@@ -1,12 +1,12 @@
 {
-  "name": "@streamhub/shared-hooks",
+  "name": "@mfe/shared-hooks",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
   "peerDependencies": {
     "react": "^19.0.0",
-    "@streamhub/shared-store": "*",
-    "@streamhub/shared-types": "*"
+    "@mfe/shared-store": "*",
+    "@mfe/shared-types": "*"
   }
 }

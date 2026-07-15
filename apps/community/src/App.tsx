@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useAuthStore, usePlayerStore } from '@streamhub/shared-store';
-import { Button, CommentCard } from '@streamhub/shared-ui';
-import { Comment } from '@streamhub/shared-types';
-import { db, collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc } from '@streamhub/firebase';
+import { useAuthStore, usePlayerStore } from '@mfe/shared-store';
+import { Button, CommentCard } from '@mfe/shared-ui';
+import { Comment } from '@mfe/shared-types';
+import { db, collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc } from '@mfe/firebase';
 
 export default function App() {
   const { user } = useAuthStore();

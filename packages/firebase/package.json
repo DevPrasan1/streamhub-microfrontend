@@ -1,5 +1,5 @@
 {
-  "name": "@streamhub/firebase",
+  "name": "@mfe/firebase",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
@@ -8,6 +8,6 @@
     "firebase": "^11.0.1"
   },
   "peerDependencies": {
-    "@streamhub/shared-types": "*"
+    "@mfe/shared-types": "*"
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Channel, Comment } from '@streamhub/shared-types';
+import { Channel, Comment } from '@mfe/shared-types';
 
 export * from './Button';
 export * from './Card';

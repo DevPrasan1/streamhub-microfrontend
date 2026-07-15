@@ -21,12 +21,12 @@
 
     /* Paths mapping for local packages development */
     "paths": {
-      "@streamhub/shared-types": ["./packages/shared-types/src/index.ts"],
-      "@streamhub/shared-utils": ["./packages/shared-utils/src/index.ts"],
-      "@streamhub/shared-hooks": ["./packages/shared-hooks/src/index.ts"],
-      "@streamhub/shared-store": ["./packages/shared-store/src/index.ts"],
-      "@streamhub/shared-ui": ["./packages/shared-ui/src/index.tsx"],
-      "@streamhub/firebase": ["./packages/firebase/src/index.ts"]
+      "@mfe/shared-types": ["./packages/shared-types/src/index.ts"],
+      "@mfe/shared-utils": ["./packages/shared-utils/src/index.ts"],
+      "@mfe/shared-hooks": ["./packages/shared-hooks/src/index.ts"],
+      "@mfe/shared-store": ["./packages/shared-store/src/index.ts"],
+      "@mfe/shared-ui": ["./packages/shared-ui/src/index.tsx"],
+      "@mfe/firebase": ["./packages/firebase/src/index.ts"]
     }
   },
   "include": ["apps/**/*", "packages/**/*"]

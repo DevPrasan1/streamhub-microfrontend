@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore, usePlayerStore, useUIStore } from '@streamhub/shared-store';
+import { useAuthStore, usePlayerStore, useUIStore } from '@mfe/shared-store';
 
 export function useAuth() {
   const { user, loading, setUser, setLoading } = useAuthStore();

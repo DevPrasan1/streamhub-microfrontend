@@ -1,6 +1,6 @@
-# StreamHub MFE Development & Team Workflows
+# MFE Boilerplate MFE Development & Team Workflows
 
-This document outlines how different teams (Video Browser, Player, Community, and Host/Core) develop, test, and run the StreamHub Micro-Frontend (MFE) platform locally.
+This document outlines how different teams (Video Browser, Player, Community, and Host/Core) develop, test, and run the MFE Boilerplate Micro-Frontend (MFE) platform locally.
 
 ---
 
@@ -23,7 +23,7 @@ npm install
 * **Local Run Commands**:
   * **Option A: Standalone Mode (Sub-millisecond HMR)**
     ```bash
-    npm run dev -w @streamhub/video-browser
+    npm run dev -w @mfe/video-browser
     ```
     *Loads the MFE independently on [http://localhost:5001](http://localhost:5001). Useful for building isolated UI components without running the Host container or other MFEs.*
   * **Option B: Embedded in Host container**
@@ -41,7 +41,7 @@ npm install
 * **Local Run Commands**:
   * **Option A: Standalone Mode**
     ```bash
-    npm run dev -w @streamhub/player
+    npm run dev -w @mfe/player
     ```
     *Loads the player independently on [http://localhost:5002](http://localhost:5002).*
   * **Option B: Embedded in Host container**
@@ -58,7 +58,7 @@ npm install
 * **Local Run Commands**:
   * **Option A: Standalone Mode**
     ```bash
-    npm run dev -w @streamhub/community
+    npm run dev -w @mfe/community
     ```
     *Loads the community panel on [http://localhost:5003](http://localhost:5003).*
   * **Option B: Embedded in Host container**
@@ -83,7 +83,7 @@ npm install
 
 ## ⚡ 3. The Shared Design System & Store Development
 
-When modifying shared workspaces like `@streamhub/shared-ui` or `@streamhub/shared-store` (e.g., updating custom buttons or adding a state hook):
+When modifying shared workspaces like `@mfe/shared-ui` or `@mfe/shared-store` (e.g., updating custom buttons or adding a state hook):
 
 1. **How it links**: npm workspaces symlink these files automatically inside `/node_modules`.
 2. **Rebuilding**: 

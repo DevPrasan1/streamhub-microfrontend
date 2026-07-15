@@ -1,6 +1,6 @@
-# StreamHub Micro-Frontend & Shared Library Guide
+# MFE Boilerplate Micro-Frontend & Shared Library Guide
 
-Welcome! If you are new to **Micro-Frontends (MFEs)**, **Module Federation**, and **Shared Libraries**, this guide will explain how StreamHub is structured and why.
+Welcome! If you are new to **Micro-Frontends (MFEs)**, **Module Federation**, and **Shared Libraries**, this guide will explain how MFE Boilerplate is structured and why.
 
 ---
 
@@ -22,12 +22,12 @@ To avoid duplicating code, everything reusable is split into isolated packages. 
 
 * **`shared-types`**: TypeScript interfaces (like `User`, `Channel`, `Comment`). This ensures all apps agree on what data looks like.
 * **`shared-utils`**: Pure helper utilities (like formatting dates, views, throttling, or flags) and holds the parsed **`YT_CHANNELS`** database exported from `yt-videos.json`.
-* **`shared-store`**: State management using **Zustand**. Includes small modular stores for Auth, Player, and UI. States are attached to window-level scope (e.g., `window.__streamhub_player_store__`) to ensure a single shared instance propagates across MFE boundaries.
+* **`shared-store`**: State management using **Zustand**. Includes small modular stores for Auth, Player, and UI. States are attached to window-level scope (e.g., `window.__mfe_player_store__`) to ensure a single shared instance propagates across MFE boundaries.
 * **`shared-hooks`**: Custom React hooks (like `useAuth()`, `usePlayer()`) that apps call to interact with Zustand stores.
 * **`shared-ui`**: Our Design System. Contains components like `Button`, `Card`, `Modal`, `Spinner`, `VideoCard`, and `CommentCard` built with Tailwind CSS.
 * **`firebase`**: Code to initialize Firebase Auth and Firestore.
 
-Because we configured paths inside `tsconfig.json`, your IDE understands imports like `import { Button } from '@streamhub/shared-ui'` and provides auto-complete.
+Because we configured paths inside `tsconfig.json`, your IDE understands imports like `import { Button } from '@mfe/shared-ui'` and provides auto-complete.
 
 ---
 

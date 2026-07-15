@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePlayerStore, useUIStore } from '@streamhub/shared-store';
-import { VideoCard, Tabs, Dropdown, Spinner, Search } from '@streamhub/shared-ui';
-import { Channel } from '@streamhub/shared-types';
-import { YT_CHANNELS } from '@streamhub/shared-utils';
+import { usePlayerStore, useUIStore } from '@mfe/shared-store';
+import { VideoCard, Tabs, Dropdown, Spinner, Search } from '@mfe/shared-ui';
+import { Channel } from '@mfe/shared-types';
+import { YT_CHANNELS } from '@mfe/shared-utils';
 
 const MOCK_CHANNELS: Channel[] = YT_CHANNELS;
 
