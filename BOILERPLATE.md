@@ -122,8 +122,8 @@ To share and publish this boilerplate for other teams:
 To maintain code health across all distributed MFE development teams:
 
 1. **Prettier Formatting**:
-   * Root config `.prettierrc` regulates styling. Code is formatted globally via `npm run format`.
+   - Root config `.prettierrc` regulates styling. Code is formatted globally via `npm run format`.
 2. **ESLint Static Checks**:
-   * Root config `eslint.config.js` enforces flat schema validation checks via `npm run lint`.
+   - Root config `eslint.config.js` enforces flat schema validation checks via `npm run lint`.
 3. **CI/CD Build Action**:
-   * Configuration `.github/workflows/ci.yml` validates code compiles cleanly and builds successfully in testing pipelines before merge.
+   - Configuration `.github/workflows/ci.yml` validates code compiles cleanly and builds successfully in testing pipelines before merge.
