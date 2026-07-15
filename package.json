@@ -22,10 +22,18 @@
     "dev:mfe": "npm run build && concurrently \"npm run dev:host\" \"npm run preview -w @mfe/video-browser\" \"npm run preview -w @mfe/player\" \"npm run preview -w @mfe/community\" \"npm run watch:browser\" \"npm run watch:player\" \"npm run watch:community\"",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
     "@eslint/js": "^9.11.1",
+    "@storybook/addon-a11y": "^10.5.0",
+    "@storybook/addon-docs": "^10.5.0",
+    "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/react": "^10.5.0",
+    "@storybook/react-vite": "^10.5.0",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.0.1",
     "eslint": "^9.11.1",
@@ -34,6 +42,7 @@
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
     "prettier": "^3.3.3",
+    "storybook": "^10.5.0",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.7.0",
