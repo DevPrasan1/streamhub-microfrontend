@@ -180,8 +180,13 @@ export const CommentCard: React.FC<CommentCardProps> = ({ comment, onDelete, cur
         {comment.userName ? comment.userName[0].toUpperCase() : '?'}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-center">
-          <span className="font-medium text-sm text-zinc-100">{comment.userName}</span>
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+            <span className="font-medium text-sm text-zinc-100">{comment.userName}</span>
+            <span className="text-[10px] text-zinc-500">
+              {new Date(comment.createdAt).toLocaleString()}
+            </span>
+          </div>
           {currentUserId === comment.uid && onDelete && (
             <button onClick={() => onDelete(comment.id)} className="text-zinc-500 hover:text-red-400 transition text-xs">
               Delete
