@@ -1,5 +1,5 @@
 import React from 'react';
-import { Channel, Comment } from '@mfe/shared-types';
+import { Product, Comment } from '@mfe/shared-types';
 
 export * from './Button';
 export * from './Card';
@@ -15,7 +15,7 @@ export const Search: React.FC<SearchProps> = ({ className = '', onSearch, ...pro
     <div className="relative">
       <input
         type="text"
-        className={`w-full bg-zinc-800 text-zinc-100 placeholder-zinc-400 px-4 py-2 pl-10 rounded-lg border border-zinc-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition ${className}`}
+        className={`w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 placeholder-zinc-500 dark:placeholder-zinc-400 px-4 py-2 pl-10 rounded-lg border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition ${className}`}
         onChange={(e) => onSearch?.(e.target.value)}
         {...props}
       />
@@ -45,12 +45,12 @@ export const Dropdown: React.FC<DropdownProps> = ({ label, children, className =
     <div className={`relative inline-block text-left ${className}`}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg border border-zinc-700 hover:bg-zinc-700 transition"
+        className="bg-zinc-150 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 px-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
       >
         {label}
       </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-zinc-900 border border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <div className="py-1" onClick={() => setIsOpen(false)}>
             {children}
           </div>
@@ -69,15 +69,15 @@ export interface TabsProps {
 }
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange, className = '' }) => {
   return (
-    <div className={`flex border-b border-zinc-800 ${className}`}>
+    <div className={`flex border-b border-zinc-200 dark:border-zinc-800 ${className}`}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`px-4 py-2 font-medium text-sm border-b-2 -mb-[2px] transition ${
+          className={`px-4 py-2 font-medium text-sm border-b-2 transition duration-200 ${
             activeTab === tab.id
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              ? 'border-indigo-500 text-indigo-650 dark:text-indigo-400'
+              : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200'
           }`}
         >
           {tab.label}
@@ -90,14 +90,13 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange, className
 // --- Tooltip Component ---
 export interface TooltipProps {
   content: string;
-  children: React.ReactElement;
-  className?: string;
+  children: React.ReactNode;
 }
-export const Tooltip: React.FC<TooltipProps> = ({ content, children, className = '' }) => {
+export const Tooltip: React.FC<TooltipProps> = ({ content, children }) => {
   return (
-    <div className={`group relative inline-block ${className}`}>
+    <div className="relative group inline-block">
       {children}
-      <div className="opacity-0 group-hover:opacity-100 transition duration-200 absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-zinc-950 text-xs text-zinc-100 rounded shadow-md whitespace-nowrap pointer-events-none z-50 border border-zinc-800">
+      <div className="opacity-0 group-hover:opacity-100 transition duration-200 absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-white dark:bg-zinc-950 text-xs text-zinc-850 dark:text-zinc-100 rounded shadow-md whitespace-nowrap pointer-events-none z-50 border border-zinc-200 dark:border-zinc-800">
         {content}
       </div>
     </div>
@@ -116,10 +115,13 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-lg w-full p-6 shadow-2xl relative z-10 text-zinc-100">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl max-w-lg w-full p-6 shadow-2xl relative z-10 text-zinc-900 dark:text-zinc-100">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-100 transition">
+          <button
+            onClick={onClose}
+            className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition"
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -135,78 +137,83 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
 export const Spinner: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
     <div
-      className={`animate-spin rounded-full h-8 w-8 border-2 border-zinc-700 border-t-indigo-500 ${className}`}
+      className={`animate-spin rounded-full h-8 w-8 border-2 border-zinc-300 dark:border-zinc-700 border-t-indigo-500 ${className}`}
     ></div>
   );
 };
 
-// --- VideoCard Component ---
-export interface VideoCardProps {
-  channel: Channel;
-  onClick?: (channel: Channel) => void;
+// --- ProductCard Component ---
+export interface ProductCardProps {
+  product: Product;
+  onClick?: (product: Product) => void;
   className?: string;
 }
-export const VideoCard: React.FC<VideoCardProps> = ({ channel, onClick, className = '' }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, className = '' }) => {
   return (
     <div
-      onClick={() => onClick?.(channel)}
-      className={`bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-md cursor-pointer hover:scale-[1.02] transition duration-200 flex flex-col group ${className}`}
+      onClick={() => onClick?.(product)}
+      className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden shadow-sm cursor-pointer hover:scale-[1.02] hover:shadow-md transition duration-200 flex flex-col group ${className}`}
     >
-      <div className="relative aspect-video bg-zinc-950 flex items-center justify-center overflow-hidden">
-        {channel.logo ? (
+      <div className="relative aspect-square bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center overflow-hidden">
+        {product.thumbnail ? (
           <img
-            src={channel.logo}
-            alt={channel.name}
+            src={product.thumbnail}
+            alt={product.title}
             className="object-cover w-full h-full group-hover:scale-105 transition duration-300"
           />
         ) : (
-          <span className="text-4xl text-zinc-700">📺</span>
+          <span className="text-4xl text-zinc-700">📦</span>
         )}
-      </div>
-      <div className="p-4 flex gap-3 flex-1">
-        <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">
-          {channel.name[0]}
+        <div className="absolute top-3 right-3 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+          ${product.price}
         </div>
-        <div className="flex flex-col min-w-0">
-          <h4 className="font-semibold text-sm text-zinc-100 truncate group-hover:text-indigo-400 transition">
-            {channel.name}
-          </h4>
-          <p className="text-zinc-400 text-xs mt-1 truncate">{channel.category || 'Live Stream'}</p>
+      </div>
+      <div className="p-4 flex flex-col flex-1">
+        <span className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">{product.category}</span>
+        <h4 className="font-semibold text-sm text-zinc-800 dark:text-zinc-100 mt-1 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+          {product.title}
+        </h4>
+        <p className="text-zinc-500 dark:text-zinc-400 text-xs mt-1 line-clamp-2 flex-1">{product.description}</p>
+        <div className="flex items-center gap-1 mt-3">
+          <span className="text-amber-400 text-xs">★</span>
+          <span className="text-zinc-650 dark:text-zinc-350 text-xs font-medium">{product.rating}</span>
         </div>
       </div>
     </div>
   );
 };
 
-// --- CommentCard Component ---
-export interface CommentCardProps {
-  comment: Comment;
+// --- ReviewCard Component ---
+export interface ReviewCardProps {
+  review: Comment;
   onDelete?: (id: string) => void;
   currentUserId?: string;
   className?: string;
 }
-export const CommentCard: React.FC<CommentCardProps> = ({ comment, onDelete, currentUserId, className = '' }) => {
+export const ReviewCard: React.FC<ReviewCardProps> = ({ review, onDelete, currentUserId, className = '' }) => {
   return (
-    <div className={`bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex gap-3 ${className}`}>
-      <div className="w-8 h-8 rounded-full bg-zinc-700 text-zinc-200 flex items-center justify-center font-semibold text-sm shrink-0">
-        {comment.userName ? comment.userName[0].toUpperCase() : '?'}
+    <div
+      className={`bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex gap-3 ${className}`}
+    >
+      <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 flex items-center justify-center font-semibold text-sm shrink-0">
+        {review.userName ? review.userName[0].toUpperCase() : '?'}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-            <span className="font-medium text-sm text-zinc-100">{comment.userName}</span>
-            <span className="text-[10px] text-zinc-500">{new Date(comment.createdAt).toLocaleString()}</span>
+            <span className="font-medium text-sm text-zinc-800 dark:text-zinc-100">{review.userName}</span>
+            <span className="text-[10px] text-zinc-500">{new Date(review.createdAt).toLocaleString()}</span>
           </div>
-          {currentUserId === comment.uid && onDelete && (
+          {currentUserId === review.uid && onDelete && (
             <button
-              onClick={() => onDelete(comment.id)}
-              className="text-zinc-500 hover:text-red-400 transition text-xs"
+              onClick={() => onDelete(review.id)}
+              className="text-zinc-500 hover:text-red-500 transition text-xs shrink-0"
             >
               Delete
             </button>
           )}
         </div>
-        <p className="text-zinc-300 text-sm mt-1 leading-relaxed">{comment.message}</p>
+        <p className="text-zinc-600 dark:text-zinc-300 text-sm mt-1 leading-relaxed">{review.message}</p>
       </div>
     </div>
   );

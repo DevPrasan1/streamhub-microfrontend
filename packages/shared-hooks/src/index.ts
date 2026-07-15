@@ -1,33 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useAuthStore, usePlayerStore, useUIStore } from '@mfe/shared-store';
+import { useAuthStore, useProductStore, useCartStore, useUIStore } from '@mfe/shared-store';
 
 export function useAuth() {
   const { user, loading, setUser, setLoading } = useAuthStore();
   return { user, loading, setUser, setLoading };
 }
 
-export function usePlayer() {
-  const {
-    selectedChannel,
-    volume,
-    isPlaying,
-    playbackRate,
-    setSelectedChannel,
-    setVolume,
-    setIsPlaying,
-    setPlaybackRate,
-  } = usePlayerStore();
+export function useProduct() {
+  const { selectedProduct, setSelectedProduct } = useProductStore();
+  return { selectedProduct, setSelectedProduct };
+}
 
-  return {
-    selectedChannel,
-    volume,
-    isPlaying,
-    playbackRate,
-    setSelectedChannel,
-    setVolume,
-    setIsPlaying,
-    setPlaybackRate,
-  };
+export function useCart() {
+  const { cartItems, addToCart, removeFromCart, clearCart } = useCartStore();
+  return { cartItems, addToCart, removeFromCart, clearCart };
 }
 
 export function useTheme() {
@@ -52,7 +38,6 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 export function useFirestore() {
-  // Placeholder for firestore subscription/querying logic
   return {};
 }
 

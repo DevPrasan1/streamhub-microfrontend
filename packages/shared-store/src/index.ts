@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User, Channel } from '@mfe/shared-types';
+import { User, Product, CartItem } from '@mfe/shared-types';
 
 // --- AUTH STORE ---
 interface AuthState {
@@ -32,48 +32,103 @@ const getAuthStore = () => {
 
 export const useAuthStore = getAuthStore();
 
-// --- PLAYER STORE ---
-interface PlayerState {
-  selectedChannel: Channel | null;
-  volume: number; // 0 to 1
-  isPlaying: boolean;
-  playbackRate: number;
-  setSelectedChannel: (channel: Channel | null) => void;
-  setVolume: (volume: number) => void;
-  setIsPlaying: (isPlaying: boolean) => void;
-  setPlaybackRate: (playbackRate: number) => void;
+// --- PRODUCT STORE ---
+interface ProductState {
+  selectedProduct: Product | null;
+  setSelectedProduct: (product: Product | null) => void;
 }
 
-const getPlayerStore = () => {
-  const key = '__mfe_player_store__';
+const getProductStore = () => {
+  const key = '__mfe_product_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
-      (window as any)[key] = create<PlayerState>((set) => ({
-        selectedChannel: null,
-        volume: 1.0,
-        isPlaying: false,
-        playbackRate: 1.0,
-        setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
-        setVolume: (volume) => set({ volume }),
-        setIsPlaying: (isPlaying) => set({ isPlaying }),
-        setPlaybackRate: (playbackRate) => set({ playbackRate }),
+      (window as any)[key] = create<ProductState>((set) => ({
+        selectedProduct: null,
+        setSelectedProduct: (selectedProduct) => set({ selectedProduct }),
       }));
     }
     return (window as any)[key];
   }
-  return create<PlayerState>((set) => ({
-    selectedChannel: null,
-    volume: 1.0,
-    isPlaying: false,
-    playbackRate: 1.0,
-    setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
-    setVolume: (volume) => set({ volume }),
-    setIsPlaying: (isPlaying) => set({ isPlaying }),
-    setPlaybackRate: (playbackRate) => set({ playbackRate }),
+  return create<ProductState>((set) => ({
+    selectedProduct: null,
+    setSelectedProduct: (selectedProduct) => set({ selectedProduct }),
   }));
 };
 
-export const usePlayerStore = getPlayerStore();
+export const useProductStore = getProductStore();
+
+// --- CART STORE ---
+interface CartState {
+  cartItems: CartItem[];
+  addToCart: (product: Product) => void;
+  removeFromCart: (productId: number) => void;
+  clearCart: () => void;
+}
+
+const getCartStore = () => {
+  const key = '__mfe_cart_store__';
+  if (typeof window !== 'undefined') {
+    if (!(window as any)[key]) {
+      (window as any)[key] = create<CartState>((set) => ({
+        cartItems: [],
+        addToCart: (product) =>
+          set((state) => {
+            const existingIndex = state.cartItems.findIndex((item) => item.product.id === product.id);
+            if (existingIndex > -1) {
+              const newItems = [...state.cartItems];
+              newItems[existingIndex].quantity += 1;
+              return { cartItems: newItems };
+            }
+            return { cartItems: [...state.cartItems, { product, quantity: 1 }] };
+          }),
+        removeFromCart: (productId) =>
+          set((state) => {
+            const existingIndex = state.cartItems.findIndex((item) => item.product.id === productId);
+            if (existingIndex > -1) {
+              const newItems = [...state.cartItems];
+              if (newItems[existingIndex].quantity > 1) {
+                newItems[existingIndex].quantity -= 1;
+                return { cartItems: newItems };
+              }
+              return { cartItems: newItems.filter((item) => item.product.id !== productId) };
+            }
+            return state;
+          }),
+        clearCart: () => set({ cartItems: [] }),
+      }));
+    }
+    return (window as any)[key];
+  }
+  return create<CartState>((set) => ({
+    cartItems: [],
+    addToCart: (product) =>
+      set((state) => {
+        const existingIndex = state.cartItems.findIndex((item) => item.product.id === product.id);
+        if (existingIndex > -1) {
+          const newItems = [...state.cartItems];
+          newItems[existingIndex].quantity += 1;
+          return { cartItems: newItems };
+        }
+        return { cartItems: [...state.cartItems, { product, quantity: 1 }] };
+      }),
+    removeFromCart: (productId) =>
+      set((state) => {
+        const existingIndex = state.cartItems.findIndex((item) => item.product.id === productId);
+        if (existingIndex > -1) {
+          const newItems = [...state.cartItems];
+          if (newItems[existingIndex].quantity > 1) {
+            newItems[existingIndex].quantity -= 1;
+            return { cartItems: newItems };
+          }
+          return { cartItems: newItems.filter((item) => item.product.id !== productId) };
+        }
+        return state;
+      }),
+    clearCart: () => set({ cartItems: [] }),
+  }));
+};
+
+export const useCartStore = getCartStore();
 
 // --- UI STORE ---
 interface UIState {
@@ -94,7 +149,7 @@ const getUIStore = () => {
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
       (window as any)[key] = create<UIState>((set) => ({
-        theme: 'dark',
+        theme: 'light',
         sidebarOpen: true,
         searchQuery: '',
         language: 'en',
@@ -109,7 +164,7 @@ const getUIStore = () => {
     return (window as any)[key];
   }
   return create<UIState>((set) => ({
-    theme: 'dark',
+    theme: 'light',
     sidebarOpen: true,
     searchQuery: '',
     language: 'en',
@@ -123,4 +178,4 @@ const getUIStore = () => {
 };
 
 export const useUIStore = getUIStore();
-export type { AuthState, PlayerState, UIState };
+export type { AuthState, ProductState, CartState, UIState };

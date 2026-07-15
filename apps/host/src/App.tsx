@@ -1,8 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
-import { useAuthStore, usePlayerStore, useUIStore } from '@mfe/shared-store';
-import { Button, Avatar, Search, Spinner } from '@mfe/shared-ui';
-import { YT_CHANNELS } from '@mfe/shared-utils';
+import { useAuthStore, useProductStore, useCartStore, useUIStore } from '@mfe/shared-store';
+import { Button, Avatar, Search, Spinner, Dropdown } from '@mfe/shared-ui';
 import {
   auth,
   googleProvider,
@@ -11,13 +10,9 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-} from '@mfe/firebase';
+} from '@mfe/mock-api';
 
-// Lazy load Remotes
-const VideoBrowserApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
-const PlayerApp = React.lazy(() => import('player/PlayerApp'));
-const CommunityApp = React.lazy(() => import('community/CommunityApp'));
-
+// Error Boundary for dynamic remote loads
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: any) {
     super(props);
@@ -28,7 +23,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     return { hasError: true };
   }
 
-  override componentDidCatch(error: any, errorInfo: any) {
+  componentDidCatch(error: any, errorInfo: any) {
     console.error('ErrorBoundary caught an error', error, errorInfo);
   }
 
@@ -53,30 +48,34 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
-// Watch Page component within host that orchestrates Player and Community MFEs
-function WatchPage() {
-  const { channelId } = useParams<{ channelId: string }>();
-  const { selectedChannel, setSelectedChannel } = usePlayerStore();
+// Lazy load Remotes
+const VideoBrowserApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
+const PlayerApp = React.lazy(() => import('player/PlayerApp'));
+const CommunityApp = React.lazy(() => import('community/CommunityApp'));
+
+// Product Detail Page container
+function ProductPage() {
+  const { productId } = useParams<{ productId: string }>();
+  const { selectedProduct, setSelectedProduct } = useProductStore();
 
   useEffect(() => {
-    if (!selectedChannel && channelId) {
-      const found = YT_CHANNELS.find((c: any) => c.id === channelId);
-      if (found) {
-        setSelectedChannel(found);
-      } else {
-        setSelectedChannel({
-          id: channelId,
-          name: `Live Channel #${channelId}`,
-          url: 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',
-          category: 'Entertainment',
-        });
-      }
+    if (productId) {
+      const fetchProduct = async () => {
+        try {
+          const res = await fetch(`https://dummyjson.com/products/${productId}`);
+          const data = await res.json();
+          setSelectedProduct(data);
+        } catch (err) {
+          console.error('Failed to fetch selected product details:', err);
+        }
+      };
+      fetchProduct();
     }
-  }, [channelId, selectedChannel, setSelectedChannel]);
+  }, [productId, setSelectedProduct]);
 
-  if (!selectedChannel) {
+  if (!selectedProduct) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full min-h-[400px]">
         <Spinner />
       </div>
     );
@@ -89,18 +88,13 @@ function WatchPage() {
           <Suspense
             fallback={
               <div className="h-[480px] bg-zinc-900 animate-pulse rounded-xl flex items-center justify-center text-zinc-500">
-                Loading Player MFE...
+                Loading Product Details MFE...
               </div>
             }
           >
             <PlayerApp />
           </Suspense>
         </ErrorBoundary>
-
-        <div className="mt-4">
-          <h1 className="text-2xl font-bold text-zinc-100">{selectedChannel.name}</h1>
-          <p className="text-zinc-400 text-sm mt-1">{selectedChannel.category}</p>
-        </div>
       </div>
 
       <div className="w-full lg:w-[400px] shrink-0">
@@ -108,7 +102,7 @@ function WatchPage() {
           <Suspense
             fallback={
               <div className="h-[300px] bg-zinc-900 animate-pulse rounded-xl flex items-center justify-center text-zinc-500">
-                Loading Community MFE...
+                Loading Product Reviews MFE...
               </div>
             }
           >
@@ -121,19 +115,23 @@ function WatchPage() {
 }
 
 function MainLayout() {
-  const { theme, sidebarOpen, toggleSidebar, setSearchQuery } = useUIStore();
+  const { theme, toggleTheme, sidebarOpen, toggleSidebar, setSearchQuery } = useUIStore();
   const { user, setUser, setLoading } = useAuthStore();
+  const { cartItems, clearCart, removeFromCart } = useCartStore();
   const navigate = useNavigate();
 
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
+    const unsubscribe = onAuthStateChanged(auth, (mockUser: any) => {
+      if (mockUser) {
         setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Firebase User',
-          email: firebaseUser.email || '',
-          photoURL: firebaseUser.photoURL || undefined,
-          createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
+          uid: mockUser.uid,
+          displayName: mockUser.displayName,
+          email: mockUser.email || '',
+          photoURL: mockUser.photoURL || undefined,
+          createdAt: new Date().toISOString(),
         });
       } else {
         setUser(null);
@@ -144,35 +142,142 @@ function MainLayout() {
     return () => unsubscribe();
   }, [setUser, setLoading]);
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const root = document.documentElement;
+      const body = document.body;
+      if (theme === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+        body.classList.add('dark');
+        body.classList.remove('light');
+        root.style.colorScheme = 'dark';
+      } else {
+        root.classList.add('light');
+        root.classList.remove('dark');
+        body.classList.add('light');
+        body.classList.remove('dark');
+        root.style.colorScheme = 'light';
+      }
+    }
+  }, [theme]);
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+    alert(`Checkout Completed Successfully!\nTotal Paid: $${totalPrice.toFixed(2)}`);
+    clearCart();
+  };
+
   return (
     <div
-      className={`h-screen flex flex-col ${theme === 'dark' ? 'bg-background text-zinc-100' : 'bg-white text-zinc-900'}`}
+      className={`h-screen flex flex-col ${theme === 'dark' ? 'bg-background text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}
     >
       {/* Header */}
-      <header className="h-16 border-b border-zinc-800 px-6 flex items-center justify-between shrink-0 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
+      <header
+        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${
+          theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
+        }`}
+      >
         <div className="flex items-center gap-4">
           <button onClick={toggleSidebar} className="text-zinc-400 hover:text-zinc-100 transition">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <Link to="/" className="flex items-center gap-2.5 text-xl font-extrabold tracking-wider text-zinc-100">
+          <Link to="/" className="flex items-center gap-2.5 text-xl font-extrabold tracking-wider">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
               </svg>
             </div>
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              MFE Boilerplate
+            <span className={`bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent`}>
+              MFE Shop
             </span>
           </Link>
         </div>
 
         <div className="w-96 max-w-full hidden md:block">
-          <Search placeholder="Search by name or country..." onSearch={setSearchQuery} />
+          <Search placeholder="Search catalog brand or name..." onSearch={setSearchQuery} />
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Cart Dropdown */}
+          <Dropdown
+            label={
+              <div className="flex items-center gap-2 relative">
+                <span>🛒</span>
+                <span className="hidden sm:inline font-medium text-sm">Cart</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-indigo-600 text-white rounded-full text-[10px] w-4 h-4 flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </div>
+            }
+          >
+            <div className="p-4 w-72 flex flex-col gap-3 text-zinc-150">
+              <h4 className="font-bold text-sm border-b border-zinc-800 pb-2 flex justify-between items-center">
+                <span>Shopping Cart</span>
+                <span className="text-zinc-500 text-xs font-normal">({totalItems} items)</span>
+              </h4>
+              {cartItems.length > 0 ? (
+                <>
+                  <div className="flex flex-col gap-3 max-h-48 overflow-y-auto no-scrollbar">
+                    {cartItems.map((item) => (
+                      <div key={item.product.id} className="flex justify-between items-center gap-2 text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <img
+                            src={item.product.thumbnail}
+                            alt=""
+                            className="w-8 h-8 rounded bg-zinc-950 object-cover shrink-0"
+                          />
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-semibold truncate">{item.product.title}</span>
+                            <span className="text-[10px] text-zinc-500">Qty: {item.quantity}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="font-bold text-indigo-400">${item.product.price * item.quantity}</span>
+                          <button
+                            onClick={() => removeFromCart(item.product.id)}
+                            className="text-red-500 hover:text-red-400 transition"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-zinc-800 pt-2 flex justify-between items-center font-bold text-sm">
+                    <span>Total Price:</span>
+                    <span className="text-indigo-400">${totalPrice.toFixed(2)}</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="primary" className="flex-1 py-2 text-xs font-bold" onClick={handleCheckout}>
+                      Checkout
+                    </Button>
+                    <Button variant="secondary" className="py-2 px-3 text-xs" onClick={clearCart}>
+                      Clear
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-6 text-zinc-500 text-xs">Your cart is empty.</div>
+              )}
+            </div>
+          </Dropdown>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg text-lg transition ${
+              theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
+            }`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+
           {user ? (
             <div className="flex items-center gap-3">
               <Avatar name={user.displayName} src={user.photoURL} />
@@ -188,20 +293,30 @@ function MainLayout() {
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r border-zinc-800 transition-all duration-300 flex flex-col bg-zinc-950/40`}
+          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${
+            theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
+          }`}
         >
           <nav className="p-4 flex flex-col gap-2">
             <Link
               to="/"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition font-medium"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium ${
+                theme === 'dark'
+                  ? 'text-zinc-300 hover:bg-zinc-850 hover:text-zinc-150'
+                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+              }`}
             >
-              <span>🏠</span> Home
+              <span>🏠</span> Home Catalog
             </Link>
             <Link
               to="/profile"
-              className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 transition font-medium"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium ${
+                theme === 'dark'
+                  ? 'text-zinc-300 hover:bg-zinc-850 hover:text-zinc-150'
+                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+              }`}
             >
-              <span>👤</span> Profile
+              <span>👤</span> Profile Settings
             </Link>
           </nav>
         </aside>
@@ -213,7 +328,7 @@ function MainLayout() {
               path="/"
               element={
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Discover Live Streams</h2>
+                  <h2 className="text-xl font-bold mb-4">Discover Products</h2>
                   <ErrorBoundary>
                     <Suspense
                       fallback={
@@ -228,13 +343,13 @@ function MainLayout() {
                 </div>
               }
             />
-            <Route path="/watch/:channelId" element={<WatchPage />} />
+            <Route path="/product/:productId" element={<ProductPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
               path="/profile"
               element={
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Profile</h2>
+                  <h2 className="text-xl font-bold mb-4">Profile Settings</h2>
                   {user ? (
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-md">
                       <div className="flex items-center gap-4">
@@ -261,7 +376,7 @@ function MainLayout() {
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-zinc-400">Please sign in to view your profile.</p>
+                    <p className="text-zinc-400">Please sign in to view your profile settings.</p>
                   )}
                 </div>
               }
@@ -315,7 +430,7 @@ function LoginPage() {
           {isSignUp ? 'Create your account' : 'Welcome back'}
         </h2>
         <p className="text-zinc-400 text-sm text-center mb-6">
-          {isSignUp ? 'Join community and sync favorites' : 'Sign in to sync your comments and favorites'}
+          {isSignUp ? 'Join community and sync orders' : 'Sign in to access your profile settings'}
         </p>
 
         {error && (
@@ -368,13 +483,9 @@ function LoginPage() {
 
           <button
             className="text-xs text-zinc-500 hover:text-zinc-300 underline transition cursor-pointer text-center"
-            onClick={() => {
-              setUser({
-                uid: 'demo-user-123',
-                displayName: 'Demo User',
-                email: 'demo@streamhub.io',
-                createdAt: new Date().toISOString(),
-              });
+            onClick={async () => {
+              const guestUser = await fetchDummyUser(1); // Fetch default user Emily
+              setUser(guestUser);
               navigate('/');
             }}
           >

@@ -1,40 +1,40 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { CommentCard } from '../index';
+import { ReviewCard } from '../index';
 
 const meta = {
-  title: 'Shared UI/CommentCard',
-  component: CommentCard,
+  title: 'Shared UI/ReviewCard',
+  component: ReviewCard,
   parameters: {
     layout: 'padded',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof CommentCard>;
+} satisfies Meta<typeof ReviewCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 const mockComment = {
   id: 'comment-1',
-  channelId: 'Fl6HC6dMqHc',
+  productId: 1,
   uid: 'user-999',
   userName: 'AstroLover',
-  message: 'Nana Patekar is absolute comedy gold in this movie! Best scene ever.',
+  message: 'This product exceeded my expectations! Highly recommend to everyone.',
   createdAt: new Date(Date.now() - 3600000).toISOString(),
 };
 
-export const StandardComment: Story = {
+export const StandardReview: Story = {
   args: {
-    comment: mockComment,
+    review: mockComment,
     currentUserId: 'user-other',
-    onDelete: (id) => console.log('Delete comment:', id),
+    onDelete: (id) => console.log('Delete review:', id),
   },
 };
 
-export const AuthorComment: Story = {
+export const AuthorReview: Story = {
   args: {
-    comment: mockComment,
-    currentUserId: 'user-999', // Matches author uid, showing the delete option
-    onDelete: (id) => console.log('Delete comment:', id),
+    review: mockComment,
+    currentUserId: 'user-999',
+    onDelete: (id) => console.log('Delete review:', id),
   },
 };

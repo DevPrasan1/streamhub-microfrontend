@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { usePlayerStore, useUIStore } from '@mfe/shared-store';
-import { VideoCard, Tabs, Dropdown, Spinner, Search } from '@mfe/shared-ui';
-import { Channel } from '@mfe/shared-types';
-import { YT_CHANNELS } from '@mfe/shared-utils';
-
-const MOCK_CHANNELS: Channel[] = YT_CHANNELS;
+import { useProductStore, useUIStore } from '@mfe/shared-store';
+import { ProductCard, Tabs, Spinner, Search } from '@mfe/shared-ui';
+import { Product } from '@mfe/shared-types';
 
 export default function App() {
   let navigate: any;
@@ -15,92 +12,76 @@ export default function App() {
     navigate = null;
   }
 
-  const { setSelectedChannel } = usePlayerStore();
+  const { setSelectedProduct } = useProductStore();
   const { searchQuery } = useUIStore();
   const [localSearch, setLocalSearch] = useState('');
 
-  const [channels, setChannels] = useState<Channel[]>(MOCK_CHANNELS);
-  const [countryInfo, setCountryInfo] = useState<Record<string, { flag: string; name: string }>>({});
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
 
-  // Detect standalone mode (i.e. not embedded in host on port 5005)
+  // Detect standalone mode
   const isStandalone = typeof window !== 'undefined' && window.location.port !== '5005';
   const activeSearch = isStandalone ? localSearch : searchQuery;
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 16; // 4 columns x 4 rows layout
+  const itemsPerPage = 12;
 
   useEffect(() => {
-    const loadApiData = async () => {
+    const fetchProducts = async () => {
       try {
         setLoading(true);
-        // Fetch countries for flag mapping in filter dropdown
-        const countriesRes = await fetch('https://iptv-org.github.io/api/countries.json');
-        const countriesData = countriesRes.ok ? await countriesRes.json() : [];
-        const infoMap: Record<string, { flag: string; name: string }> = {};
-        countriesData.forEach((c: any) => {
-          if (c.code) {
-            infoMap[c.code.toUpperCase()] = {
-              flag: c.flag || '🏳️',
-              name: c.name || c.code,
-            };
-          }
-        });
-        setCountryInfo(infoMap);
-
-        // Load Shemaroo comedy channel playlist directly!
-        setChannels(YT_CHANNELS);
+        const res = await fetch('https://dummyjson.com/products?limit=100');
+        const data = await res.json();
+        setProducts(data.products || []);
       } catch (err) {
-        console.warn('API load failed. Using offline fallback.', err);
-        setChannels(YT_CHANNELS);
+        console.error('Failed to fetch products:', err);
       } finally {
         setLoading(false);
       }
     };
-
-    loadApiData();
+    fetchProducts();
   }, []);
 
-  const handleChannelClick = (channel: Channel) => {
-    setSelectedChannel(channel);
-    if (navigate) {
-      navigate(`/watch/${channel.id}`);
-    } else {
-      alert(`Playing channel: ${channel.name} (Standalone Mode)`);
-    }
-  };
+  // Filter Categories dynamically
+  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category))).sort()];
 
-  // Reset page to 1 whenever filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeSearch, activeCategory]);
-
-  // Extract categories dynamically from currently loaded channels
-  const categories = ['All', ...Array.from(new Set(channels.map((c) => c.category).filter(Boolean))).sort()];
-
-  const filteredChannels = channels.filter((channel: any) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch = activeSearch
-      ? channel.name.toLowerCase().includes(activeSearch.toLowerCase()) ||
-        channel.country.toLowerCase().includes(activeSearch.toLowerCase()) ||
-        (countryInfo[channel.country.toUpperCase()]?.name || '').toLowerCase().includes(activeSearch.toLowerCase())
+      ? product.title.toLowerCase().includes(activeSearch.toLowerCase()) ||
+        product.description.toLowerCase().includes(activeSearch.toLowerCase()) ||
+        product.brand.toLowerCase().includes(activeSearch.toLowerCase())
       : true;
-    const matchesCategory = activeCategory === 'All' || channel.category === activeCategory;
+
+    const matchesCategory = activeCategory === 'All' ? true : product.category === activeCategory;
+
     return matchesSearch && matchesCategory;
   });
 
-  // Calculate pagination coordinates
-  const totalPages = Math.ceil(filteredChannels.length / itemsPerPage);
-  const paginatedChannels = filteredChannels.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Reset page number on filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, activeSearch]);
+
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    if (navigate) {
+      navigate(`/product/${product.id}`);
+    }
+  };
+
+  // Pagination bounds
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="flex flex-col gap-6">
       {/* Filters Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
         <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
           <Tabs
-            tabs={categories.map((c) => ({ id: c, label: c }))}
+            tabs={categories.map((c) => ({ id: c, label: c.toUpperCase() }))}
             activeTab={activeCategory}
             onChange={setActiveCategory}
             className="flex-nowrap border-b-0 whitespace-nowrap overflow-x-auto"
@@ -109,50 +90,50 @@ export default function App() {
         <div className="flex flex-wrap items-center gap-4 shrink-0">
           {isStandalone && (
             <div className="w-full sm:w-64">
-              <Search placeholder="Search name or country..." onChange={(e) => setLocalSearch(e.target.value)} />
+              <Search placeholder="Search products..." onChange={(e) => setLocalSearch(e.target.value)} />
             </div>
           )}
         </div>
       </div>
 
-      {/* Channels Grid */}
+      {/* Products Grid */}
       {loading ? (
         <div className="flex justify-center p-12">
           <Spinner />
         </div>
-      ) : paginatedChannels.length > 0 ? (
+      ) : paginatedProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {paginatedChannels.map((channel) => (
-            <VideoCard key={channel.id} channel={channel} onClick={handleChannelClick} />
+          {paginatedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} onClick={handleProductClick} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-zinc-500 border border-zinc-800 border-dashed rounded-xl">
-          No channels match your filters.
+        <div className="text-center py-12 text-zinc-500 border border-zinc-200 dark:border-zinc-800 border-dashed rounded-xl">
+          No products match your filters.
         </div>
       )}
 
       {/* Pagination Bar */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 bg-zinc-900/40 px-6 py-4 rounded-xl border border-zinc-800">
+        <div className="flex items-center justify-between mt-6 bg-white dark:bg-zinc-900/40 px-6 py-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+            className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-850 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
           >
             ← Previous
           </button>
 
-          <span className="text-sm font-medium text-zinc-400 text-center">
-            Page <span className="text-zinc-200">{currentPage}</span> of{' '}
-            <span className="text-zinc-200">{totalPages}</span>
-            <span className="hidden sm:inline"> ({filteredChannels.length} channels total)</span>
+          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400 text-center">
+            Page <span className="text-zinc-800 dark:text-zinc-200">{currentPage}</span> of{' '}
+            <span className="text-zinc-800 dark:text-zinc-200">{totalPages}</span>
+            <span className="hidden sm:inline"> ({filteredProducts.length} items total)</span>
           </span>
 
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-850 hover:bg-zinc-800 border border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
+            className="px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-850 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition"
           >
             Next →
           </button>

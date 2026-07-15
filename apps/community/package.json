@@ -16,7 +16,7 @@
     "@mfe/shared-store": "*",
     "@mfe/shared-hooks": "*",
     "@mfe/shared-ui": "*",
-    "@mfe/firebase": "*"
+    "@mfe/mock-api": "*"
   },
   "devDependencies": {
     "@originjs/vite-plugin-federation": "^1.3.6",

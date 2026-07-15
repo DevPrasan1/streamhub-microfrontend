@@ -1,45 +1,36 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { VideoCard } from '../index';
+import { ProductCard } from '../index';
 
 const meta = {
-  title: 'Shared UI/VideoCard',
-  component: VideoCard,
+  title: 'Shared UI/ProductCard',
+  component: ProductCard,
   parameters: {
     layout: 'centered',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof VideoCard>;
+} satisfies Meta<typeof ProductCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockChannel = {
-  id: 'Fl6HC6dMqHc',
-  name: 'घुंघरू सेठ भगवान का दिया सबकुछ है.. वेलकम बैक',
-  url: 'https://www.youtube.com/watch?v=Fl6HC6dMqHc',
-  logo: 'https://i.ytimg.com/vi/Fl6HC6dMqHc/hqdefault.jpg',
-  category: 'Nana Patekar',
-  country: 'IN',
-  language: 'hi',
-  description: 'Welcome Back (2015) movie comedy clips featuring Nana Patekar and Anil Kapoor.',
-  channelTitle: 'Shemaroo Comedy',
-  channelUrl: 'https://www.youtube.com/@shemaroobollywoodcomedy',
-  channelId: 'UC0PKLLmL8pIJLjOI1gBH_pA',
-  position: 1,
-  videoTitle: 'घुंघरू सेठ भगवान का दिया सबकुछ है.. वेलकम बैक',
-  videoUrl: 'https://www.youtube.com/watch?v=Fl6HC6dMqHc',
-  videoId: 'Fl6HC6dMqHc',
-  publishDate: '2026-07-14T13:00:30Z',
-  duration: '13:38',
-  views: 6369,
-  thumbnailUrl: 'https://i.ytimg.com/vi/Fl6HC6dMqHc/hqdefault.jpg',
-  availabilityStatus: 'available',
+const mockProduct = {
+  id: 1,
+  title: 'Essence Mascara Lash Princess',
+  description: 'The Essence Mascara Lash Princess is a popular mascara known for its volume and lengthening effects.',
+  price: 9.99,
+  discountPercentage: 7.17,
+  rating: 4.82,
+  stock: 5,
+  brand: 'Essence',
+  category: 'beauty',
+  thumbnail: 'https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/thumbnail.png',
+  images: ['https://cdn.dummyjson.com/products/images/beauty/Essence%20Mascara%20Lash%20Princess/1.png'],
 };
 
 export const Default: Story = {
   args: {
-    channel: mockChannel,
-    onClick: (channel) => console.log('Clicked channel:', channel),
+    product: mockProduct,
+    onClick: (product) => console.log('Clicked product:', product),
   },
 };
