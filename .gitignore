@@ -39,3 +39,6 @@ Thumbs.db
 
 # Temp/Duplicate folders
 apps/packages/
+
+*storybook.log
+storybook-static
