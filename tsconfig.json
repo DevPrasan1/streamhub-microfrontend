@@ -26,7 +26,7 @@
       "@mfe/shared-hooks": ["./packages/shared-hooks/src/index.ts"],
       "@mfe/shared-store": ["./packages/shared-store/src/index.ts"],
       "@mfe/shared-ui": ["./packages/shared-ui/src/index.tsx"],
-      "@mfe/firebase": ["./packages/firebase/src/index.ts"]
+      "@mfe/mock-api": ["./packages/mock-api/src/index.ts"]
     }
   },
   "include": ["apps/**/*", "packages/**/*"]
