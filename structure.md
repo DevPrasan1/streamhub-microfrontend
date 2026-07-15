@@ -81,7 +81,7 @@ Instead, they communicate using the **Shared Store**:
 
 1. **Video Browser MFE** displays a list of video cards loaded from the YouTube comedy dataset. When you click one, it updates the `selectedChannel` in the shared store.
 2. The Host observes this change and navigates the user to `/watch/:channelId`.
-3. **Player MFE** detects that `selectedChannel` has been updated in the shared store. If it is a standard HLS link, it starts playback; if it is a YouTube link, it dynamically embeds the YouTube iframe player with customized parameters.
+3. **Player MFE** detects that `selectedChannel` has been updated in the shared store. It parses the video URL and dynamically embeds the YouTube iframe player with autoplay configurations.
 4. **Community MFE** detects the new video ID and loads the corresponding message chats from Firestore.
 
 If the **Player MFE** crashes, the Host's `ErrorBoundary` catches the crash and displays a fallback, while the rest of the application (Header, Sidebar, Community chat) continues to function normally!

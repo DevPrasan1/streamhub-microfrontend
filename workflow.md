@@ -36,7 +36,7 @@ npm install
 ---
 
 ### 🎥 Workflow B: Web Player Team
-* **Focus**: Video renderers (HLS streams, YouTube iframe embeds), player control bars, and quality statistics.
+* **Focus**: Video renderers (YouTube iframe embeds) and container player layout.
 * **MFE Location**: `apps/player`
 * **Local Run Commands**:
   * **Option A: Standalone Mode**
