@@ -17,8 +17,8 @@ Below is the developer guide on why this architecture is chosen, how it is desig
 3. **Shared Zustand Store Sync**:
    - Remotes and Host share a single state management registry.
    - Zustand hooks are attached as window singletons (e.g., `window.__mfe_player_store__`) to prevent memory leaks and state drift during runtime updates.
-4. **Global Tailwind / PostCSS Theme**:
-   - Shared component package (`@mfe/shared-ui`) includes Tailwind layouts. Storybook compiles and previews these components instantly using a native PostCSS directory watcher.
+4. **Global Storybook & PostCSS Hub**:
+   - Root Storybook configuration serves styled components across all package libraries and applications from a unified host (port 6006) using root-level PostCSS and Tailwind compilers.
 
 ---
 
@@ -114,3 +114,16 @@ To share and publish this boilerplate for other teams:
    - Check the box **"Template repository"**. This adds the green **"Use this template"** button to your main repo landing page so developers can clone it as a clean starter instantly.
 2. **Add badging to README**:
    - Place a link inside the main `README.md` introducing this boilerplate setup so developers know how to kick off their monorepo architecture.
+
+---
+
+## 🛠️ 5. Quality Controls (Linting, Formatting, & CI/CD)
+
+To maintain code health across all distributed MFE development teams:
+
+1. **Prettier Formatting**:
+   * Root config `.prettierrc` regulates styling. Code is formatted globally via `npm run format`.
+2. **ESLint Static Checks**:
+   * Root config `eslint.config.js` enforces flat schema validation checks via `npm run lint`.
+3. **CI/CD Build Action**:
+   * Configuration `.github/workflows/ci.yml` validates code compiles cleanly and builds successfully in testing pipelines before merge.

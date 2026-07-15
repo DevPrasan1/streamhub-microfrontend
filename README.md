@@ -816,3 +816,13 @@ Version 2
 - Stream recording support
 
 ---
+
+# 25. Linting, Formatting, & CI/CD
+
+To maintain enterprise-grade code health, the monorepo is equipped with automated validation layers:
+
+* **Code Formatting**: Prettier checks are enforced globally. Run `npm run format` to auto-format files.
+* **Code Linting**: ESLint parses TypeScript and React configurations to detect syntax and design issues. Run `npm run lint` to execute validation checks.
+* **CI/CD Build Pipeline**: Every commit and PR triggers a GitHub Actions workflow (`.github/workflows/ci.yml`) validating that dependencies resolve (`npm ci`), styling checks pass, and all micro-frontends and Storybook documentation packages compile successfully without breaking the Module Federation interface.
+
+---
