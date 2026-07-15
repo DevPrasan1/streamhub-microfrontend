@@ -19,7 +19,7 @@ This project demonstrates:
 * ✅ Shared Global State
 * ✅ Shared Design System
 * ✅ Enterprise Folder Structure
-* ✅ HLS Video Streaming
+* ✅ YouTube Video Playback
 * ✅ Firebase Integration
 * ✅ Storybook
 * ✅ TypeScript
@@ -37,7 +37,6 @@ This project demonstrates:
 * Module Federation
 * React Router
 * Tailwind CSS
-* HLS.js
 * Zustand
 * React Hook Form
 * Zod
@@ -203,13 +202,11 @@ Responsibilities
 * Search
 * Filter
 * Categories
-* Countries
-* Languages
 * Recently Watched
 * Favorites
 * Video Grid
 
-Consumes IPTV-org metadata.
+Consumes YouTube metadata database.
 
 Updates
 
@@ -225,14 +222,8 @@ Nothing else.
 
 Responsibilities
 
-* HLS Playback
-* Fullscreen
-* PiP
-* Volume
-* Playback Speed
-* Keyboard Shortcuts
-* Quality Selection
-* Player Statistics
+* YouTube Playback
+* Playback State synchronization
 
 Consumes
 
@@ -703,7 +694,7 @@ Player
 
 ↓
 
-Load HLS
+Embed YouTube Player
 
 ↓
 
@@ -723,25 +714,16 @@ No direct communication between MFEs.
 ## Video Browser
 
 * Search
-* Country Filter
 * Category Filter
-* Language Filter
 * Favorites
 * Recently Watched
-* Infinite Scroll (optional)
 
 ---
 
 ## Player
 
-* HLS.js
-* Fullscreen
-* Picture in Picture
-* Playback Speed
-* Quality Selection
-* Volume
-* Keyboard Shortcuts
-* Player Statistics
+* YouTube Iframe Embed
+* Native playback controls (Play, Pause, Speed, Quality, Fullscreen)
 
 ---
 
