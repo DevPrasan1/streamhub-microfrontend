@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useProductStore, useUIStore } from '@mfe/shared-store';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useUIStore } from '@mfe/shared-store';
 
 export default function CategorySelector() {
-  const { activeCategory, setActiveCategory } = useProductStore();
   const { theme } = useUIStore();
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  let navigate: any;
+  let location: any;
+  let params: any = {};
+  try {
+    navigate = useNavigate();
+    location = useLocation();
+    params = useParams<{ categoryName?: string }>();
+  } catch {
+    navigate = null;
+    location = null;
+  }
+
+  const activeCategory = params.categoryName || 'All';
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -46,15 +60,24 @@ export default function CategorySelector() {
         return (
           <button
             key={category}
-            onClick={() => setActiveCategory(category)}
-            className={`w-full text-left px-4 py-2 text-sm rounded-lg transition duration-150 flex items-center justify-between border-l-2 cursor-pointer font-medium ${isActive
-              ? theme === 'dark'
-                ? 'bg-brand-950/40 text-brand-400 border-brand-500'
-                : 'bg-brand-50 text-brand-700 border-brand-500'
-              : theme === 'dark'
-                ? 'border-transparent text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
-                : 'border-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
-              }`}
+            onClick={() => {
+              if (navigate) {
+                if (category === 'All') {
+                  navigate('/');
+                } else {
+                  navigate(`/category/${category}`);
+                }
+              }
+            }}
+            className={`w-full text-left px-4 py-2 text-sm rounded-lg transition duration-150 flex items-center justify-between border-l-2 cursor-pointer font-medium ${
+              isActive
+                ? theme === 'dark'
+                  ? 'bg-brand-950/40 text-brand-400 border-brand-500'
+                  : 'bg-brand-50 text-brand-700 border-brand-500'
+                : theme === 'dark'
+                  ? 'border-transparent text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200'
+                  : 'border-transparent text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+            }`}
           >
             <span>{formatCategoryName(category)}</span>
             {isActive && <span className="text-xs">●</span>}

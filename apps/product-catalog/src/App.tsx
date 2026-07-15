@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useProductStore, useUIStore } from '@mfe/shared-store';
 import { ProductCard, Tabs, Spinner, Search } from '@mfe/shared-ui';
 import { Product } from '@mfe/shared-types';
 
 export default function App() {
   let navigate: any;
+  let params: any = {};
   try {
     navigate = useNavigate();
+    params = useParams<{ categoryName?: string }>();
   } catch {
     navigate = null;
   }
 
-  const { setSelectedProduct, activeCategory, setActiveCategory } = useProductStore();
+  const { setSelectedProduct, activeCategory: storeCategory, setActiveCategory } = useProductStore();
+  const activeCategory = params.categoryName || storeCategory || 'All';
   const { searchQuery } = useUIStore();
   const [localSearch, setLocalSearch] = useState('');
 

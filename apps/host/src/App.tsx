@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore, useProductStore, useCartStore, useUIStore } from '@mfe/shared-store';
-import { Button, Avatar, Search, Spinner, Dropdown } from '@mfe/shared-ui';
+import { Button, Avatar, Search, Spinner, Dropdown, ProductCard } from '@mfe/shared-ui';
 import {
   auth,
   googleProvider,
@@ -59,6 +59,8 @@ function ProductPage() {
   const { productId } = useParams<{ productId: string }>();
   const { selectedProduct, setSelectedProduct } = useProductStore();
   const { theme } = useUIStore();
+  const navigate = useNavigate();
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
 
   useEffect(() => {
     if (productId) {
@@ -75,6 +77,22 @@ function ProductPage() {
     }
   }, [productId, setSelectedProduct]);
 
+  useEffect(() => {
+    if (selectedProduct) {
+      const fetchRelated = async () => {
+        try {
+          const res = await fetch(`https://dummyjson.com/products/category/${selectedProduct.category}?limit=5`);
+          const data = await res.json();
+          const filtered = (data.products || []).filter((p: any) => p.id !== selectedProduct.id);
+          setRelatedProducts(filtered.slice(0, 4));
+        } catch (err) {
+          console.error('Failed to fetch related products:', err);
+        }
+      };
+      fetchRelated();
+    }
+  }, [selectedProduct]);
+
   if (!selectedProduct) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
@@ -84,44 +102,69 @@ function ProductPage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-6">
-      <div className="flex-1 min-w-0">
-        <ErrorBoundary>
-          <Suspense
-            fallback={
-              <div
-                className={`h-[480px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
-                  : 'bg-white border-zinc-200 text-zinc-400'
+    <div className="flex flex-col gap-8 p-6">
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1 min-w-0">
+          <ErrorBoundary>
+            <Suspense
+              fallback={
+                <div
+                  className={`h-[480px] animate-pulse rounded-xl flex items-center justify-center border ${
+                    theme === 'dark'
+                      ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                      : 'bg-white border-zinc-200 text-zinc-400'
                   }`}
-              >
-                Loading Product Details MFE...
-              </div>
-            }
-          >
-            <PlayerApp />
-          </Suspense>
-        </ErrorBoundary>
+                >
+                  Loading Product Details MFE...
+                </div>
+              }
+            >
+              <PlayerApp />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+
+        <div className="w-full lg:w-[400px] shrink-0">
+          <ErrorBoundary>
+            <Suspense
+              fallback={
+                <div
+                  className={`h-[300px] animate-pulse rounded-xl flex items-center justify-center border ${
+                    theme === 'dark'
+                      ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                      : 'bg-white border-zinc-200 text-zinc-400'
+                  }`}
+                >
+                  Loading Product Reviews MFE...
+                </div>
+              }
+            >
+              <CommunityApp />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
       </div>
 
-      <div className="w-full lg:w-[400px] shrink-0">
-        <ErrorBoundary>
-          <Suspense
-            fallback={
-              <div
-                className={`h-[300px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
-                  : 'bg-white border-zinc-200 text-zinc-400'
-                  }`}
-              >
-                Loading Product Reviews MFE...
-              </div>
-            }
-          >
-            <CommunityApp />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <div className={`border-t pt-8 ${theme === 'dark' ? 'border-zinc-850' : 'border-zinc-200'}`}>
+          <h3 className={`text-xl font-bold mb-6 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-800'}`}>
+            Customers Also Viewed
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {relatedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onClick={(p) => {
+                  setSelectedProduct(p);
+                  navigate(`/product/${p.id}`);
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -186,8 +229,9 @@ function MainLayout() {
     >
       {/* Header */}
       <header
-        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
-          }`}
+        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${
+          theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
+        }`}
       >
         <div className="flex items-center gap-4">
           <button onClick={toggleSidebar} className="text-zinc-400 hover:text-zinc-100 transition">
@@ -281,8 +325,9 @@ function MainLayout() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-lg text-lg transition ${theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
-              }`}
+            className={`p-2 rounded-lg text-lg transition ${
+              theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
+            }`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
             {theme === 'light' ? '🌙' : '☀️'}
@@ -307,8 +352,9 @@ function MainLayout() {
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
-            }`}
+          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${
+            theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
+          }`}
         >
           {/* <nav className="p-4 flex flex-col gap-2">
             <Link
@@ -325,7 +371,6 @@ function MainLayout() {
           <div
             className={`border-t p-4 flex-1 flex flex-col min-h-0 ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'}`}
           >
-
             <ErrorBoundary>
               <Suspense fallback={<div className="text-xs text-zinc-500 px-4">Loading categories...</div>}>
                 <CategorySelectorApp />
@@ -356,6 +401,25 @@ function MainLayout() {
                 </div>
               }
             />
+            <Route
+              path="/category/:categoryName"
+              element={
+                <div className="p-6">
+                  <h2 className="text-xl font-bold mb-4">Discover Products</h2>
+                  <ErrorBoundary>
+                    <Suspense
+                      fallback={
+                        <div className="flex justify-center p-12">
+                          <Spinner />
+                        </div>
+                      }
+                    >
+                      <VideoBrowserApp />
+                    </Suspense>
+                  </ErrorBoundary>
+                </div>
+              }
+            />
             <Route path="/product/:productId" element={<ProductPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route
@@ -367,10 +431,11 @@ function MainLayout() {
                   </h2>
                   {user ? (
                     <div
-                      className={`p-6 rounded-xl border max-w-md ${theme === 'dark'
-                        ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
-                        : 'bg-white border-zinc-200 text-zinc-850'
-                        }`}
+                      className={`p-6 rounded-xl border max-w-md ${
+                        theme === 'dark'
+                          ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
+                          : 'bg-white border-zinc-200 text-zinc-850'
+                      }`}
                     >
                       <div className="flex items-center gap-4">
                         <Avatar name={user.displayName} src={user.photoURL} className="w-16 h-16 text-xl" />
@@ -451,8 +516,9 @@ function LoginPage() {
   return (
     <div className="flex items-center justify-center p-12">
       <div
-        className={`p-8 max-w-md w-full border rounded-xl shadow-sm dark:shadow-2xl transition duration-200 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
-          }`}
+        className={`p-8 max-w-md w-full border rounded-xl shadow-sm dark:shadow-2xl transition duration-200 ${
+          theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
+        }`}
       >
         <h2 className={`text-2xl font-bold text-center mb-2 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-800'}`}>
           {isSignUp ? 'Create your account' : 'Welcome back'}
@@ -478,10 +544,11 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
-                ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
-                : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
-                }`}
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${
+                theme === 'dark'
+                  ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
+                  : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
+              }`}
             />
           </div>
 
@@ -497,10 +564,11 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
-                ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
-                : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
-                }`}
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${
+                theme === 'dark'
+                  ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
+                  : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
+              }`}
             />
           </div>
 
