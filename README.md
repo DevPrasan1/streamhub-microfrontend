@@ -3,6 +3,8 @@
 > **A production-inspired Video Management Platform built with React, Vite, Module Federation, Firebase, Storybook, and Zustand.**
 >
 > The goal of this project is **not to clone YouTube**, but to demonstrate how a large enterprise application can be split into independently developed and deployed Micro-Frontends.
+>
+> 📖 **Developer Workflows**: For instructions on running standalone commands, integrated hot-rebuild environments, and workspace scripts cataloging, refer to [workflow.md](file:///Users/devprasan/Documents/video-management-software-with-MFE/workflow.md).
 
 ---
 
