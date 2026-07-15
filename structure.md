@@ -1,6 +1,6 @@
 # MFE Boilerplate Micro-Frontend & Shared Library Guide
 
-Welcome! If you are new to **Micro-Frontends (MFEs)**, **Module Federation**, and **Shared Libraries**, this guide will explain how MFE Boilerplate is structured and why.
+Welcome! If you are new to **Micro-Frontends (MFEs)**, **Module Federation**, and **Shared Libraries**, this guide will explain how the E-Commerce MFE Boilerplate is structured and why.
 
 ---
 
@@ -21,12 +21,12 @@ We use **npm workspaces** to connect them. When you run `npm install` at the roo
 
 To avoid duplicating code, everything reusable is split into isolated packages. They do not contain any business screens; they only contain building blocks.
 
-- **`shared-types`**: TypeScript interfaces (like `User`, `Channel`, `Comment`). This ensures all apps agree on what data looks like.
-- **`shared-utils`**: Pure helper utilities (like formatting dates, views, throttling, or flags) and holds the parsed **`YT_CHANNELS`** database exported from `yt-videos.json`.
-- **`shared-store`**: State management using **Zustand**. Includes small modular stores for Auth, Player, and UI. States are attached to window-level scope (e.g., `window.__mfe_player_store__`) to ensure a single shared instance propagates across MFE boundaries.
-- **`shared-hooks`**: Custom React hooks (like `useAuth()`, `usePlayer()`) that apps call to interact with Zustand stores.
-- **`shared-ui`**: Our Design System. Contains components like `Button`, `Card`, `Modal`, `Spinner`, `VideoCard`, and `CommentCard` built with Tailwind CSS.
-- **`firebase`**: Code to initialize Firebase Auth and Firestore.
+- **`shared-types`**: TypeScript interfaces (like `User`, `Product`, `CartItem`, `Comment`). This ensures all apps agree on what data looks like.
+- **`shared-utils`**: Pure helper utilities (like formatting currencies, search debouncers, or list sortings).
+- **`shared-store`**: State management using **Zustand**. Includes small modular stores for Auth, Products, Cart, and UI. States are attached to window-level scope (e.g., `window.__mfe_cart_store__`) to ensure a single shared instance propagates across MFE boundaries.
+- **`shared-hooks`**: Custom React hooks (like `useAuth()`, `useProduct()`, `useCart()`) that apps call to interact with Zustand stores.
+- **`shared-ui`**: Our Design System. Contains components like `Button`, `Card`, `Modal`, `Spinner`, `ProductCard`, and `ReviewCard` built with Tailwind CSS and fully theme-aware.
+- **`mock-api`**: Code to query public e-commerce REST endpoints and simulate Firestore collections using `localStorage`.
 
 Because we configured paths inside `tsconfig.json`, your IDE understands imports like `import { Button } from '@mfe/shared-ui'` and provides auto-complete.
 
@@ -38,20 +38,20 @@ Because we configured paths inside `tsconfig.json`, your IDE understands imports
 
 ### Host vs. Remote
 
-- **Host (`apps/host`)**: The "container" or "shell". It owns the main page layout, routing, header, sidebar, and authentication state. It decides when to load the other applications.
-- **Remotes (`video-browser`, `player`, `community`)**: Independent micro-frontend apps. They build their own code and expose specific entry components for the Host to import.
+- **Host (`apps/host`)**: The "container" or "shell". It owns the main page layout, routing, header (with the shopping cart widget), sidebar, and authentication state. It decides when to load the other applications.
+- **Remotes (`video-browser` for Catalog, `player` for Details, `community` for Reviews)**: Independent micro-frontend apps. They build their own code and expose specific entry components for the Host to import.
 
 ### How they connect
 
-1. Every remote app defines an **expose** configuration in its `vite.config.ts`. For example, `video-browser` exposes `./VideoBrowserApp`.
+1. Every remote app defines an **expose** configuration in its `vite.config.ts`.
 2. When built, the remote creates a special file called `remoteEntry.js` inside its build assets.
 3. The host app registers these remotes in its `vite.config.ts` by pointing to their URLs:
-   - Video Browser: `http://localhost:5001/assets/remoteEntry.js`
-   - Player: `http://localhost:5002/assets/remoteEntry.js`
-   - Community: `http://localhost:5003/assets/remoteEntry.js`
+   - Product Catalog: `http://localhost:5001/assets/remoteEntry.js`
+   - Product Details: `http://localhost:5002/assets/remoteEntry.js`
+   - Product Reviews: `http://localhost:5003/assets/remoteEntry.js`
 4. In the host source code (`apps/host/src/App.tsx`), we load them dynamically using React's lazy loading:
    ```typescript
-   const VideoBrowserApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
+   const ProductCatalogApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
    ```
 
 ### Shared Singletons
@@ -62,7 +62,7 @@ To prevent downloading React or Zustand multiple times, Module Federation is con
 
 ## 4. How the Apps interact at Runtime
 
-A key rule of Micro-Frontends is that **apps should never import code directly from other apps** (e.g. Player should never import from Video Browser).
+A key rule of Micro-Frontends is that **apps should never import code directly from other apps** (e.g. Product Details should never import from Product Catalog).
 
 Instead, they communicate using the **Shared Store**:
 
@@ -71,22 +71,22 @@ Instead, they communicate using the **Shared Store**:
   │                   Host App (Shell)                     │
   │                                                        │
   │     ┌────────────────── Shared Store ────────────────┐  │
-  │     │  user (Auth)   selectedChannel   theme (UI)    │  │
+  │     │   user (Auth)   selectedProduct   cart (Checkout)│  │
   │     └────────────────────────────────────────────────┘  │
   │           ▲                  ▲                  ▲       │
   └───────────┼──────────────────┼──────────────────┼───────┘
               │                  │                  │
-        (Reads Auth)      (Sets Channel)      (Reads Channel)
+        (Reads Auth)      (Sets Product)      (Adds to Cart)
               │                  │                  │
       ┌───────┴──────┐     ┌─────┴────────┐   ┌─────┴──────┐
-      │  Community   │     │Video Browser │   │   Player   │
+      │   Reviews    │     │   Catalog    │   │  Details   │
       │     MFE      │     │     MFE      │   │    MFE     │
       └──────────────┘     └──────────────┘   └────────────┘
 ```
 
-1. **Video Browser MFE** displays a list of video cards loaded from the YouTube comedy dataset. When you click one, it updates the `selectedChannel` in the shared store.
-2. The Host observes this change and navigates the user to `/watch/:channelId`.
-3. **Player MFE** detects that `selectedChannel` has been updated in the shared store. It parses the video URL and dynamically embeds the YouTube iframe player with autoplay configurations.
-4. **Community MFE** detects the new video ID and loads the corresponding message chats from Firestore.
+1. **Product Catalog MFE** displays a grid of items loaded from the DummyJSON product feeds. When you click one, it updates the `selectedProduct` in the shared store.
+2. The Host observes this change and navigates the user to `/product/:productId`.
+3. **Product Details MFE** detects that `selectedProduct` has been updated in the shared store. It parses the item metadata and dynamically displays galleries. Clicking "Add to Cart" triggers the shared Zustand `addToCart()` slice.
+4. **Product Reviews MFE** detects the active product ID and loads customer review feeds from the mock REST API.
 
-If the **Player MFE** crashes, the Host's `ErrorBoundary` catches the crash and displays a fallback, while the rest of the application (Header, Sidebar, Community chat) continues to function normally!
+If the **Product Details MFE** crashes, the Host's `ErrorBoundary` catches the crash and displays a fallback, while the rest of the application (Header Cart widget, Sidebar, Reviews) continues to function normally!

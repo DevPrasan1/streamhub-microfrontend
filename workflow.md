@@ -1,6 +1,6 @@
-# MFE Boilerplate MFE Development & Team Workflows
+# MFE Development & Team Workflows
 
-This document outlines how different teams (Video Browser, Player, Community, and Host/Core) develop, test, and run the MFE Boilerplate Micro-Frontend (MFE) platform locally.
+This document outlines how different teams (Product Catalog, Product Details, Product Reviews, and Host/Core) develop, test, and run the E-Commerce MFE Boilerplate micro-frontend platform locally.
 
 ---
 
@@ -17,10 +17,10 @@ npm install
 
 ## 🛠️ 2. Development Workflows by Team
 
-### 📺 Workflow A: Video Browser Team
+### 📦 Workflow A: Product Catalog Team
 
-- **Focus**: Modifying video feeds, search, filters, pagination, category tabs, and cards.
-- **MFE Location**: `apps/video-browser`
+- **Focus**: Modifying product grids, category filter tabs, search filters, pagination logic, and ProductCard visuals.
+- **MFE Location**: `apps/video-browser` (mapped as the Catalog remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode (Sub-millisecond HMR)**
     ```bash
@@ -36,10 +36,10 @@ npm install
 
 ---
 
-### 🎥 Workflow B: Web Player Team
+### 🔍 Workflow B: Product Details Team
 
-- **Focus**: Video renderers (YouTube iframe embeds) and container player layout.
-- **MFE Location**: `apps/player`
+- **Focus**: Product details presentation, gallery thumbnails switcher, brand specs, and the "Add to Cart" checkout synchronizer.
+- **MFE Location**: `apps/player` (mapped as the Details remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode**
     ```bash
@@ -54,10 +54,10 @@ npm install
 
 ---
 
-### 💬 Workflow C: Community Team
+### 💬 Workflow C: Product Reviews Team
 
-- **Focus**: Real-time Firestore chat threads, user profiles, message layouts, and profile page.
-- **MFE Location**: `apps/community`
+- **Focus**: Asynchronous product reviews fetch queries, custom review additions, deletes, and the user profile views.
+- **MFE Location**: `apps/community` (mapped as the Reviews remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode**
     ```bash
@@ -68,13 +68,13 @@ npm install
     ```bash
     npm run dev:mfe
     ```
-    _Opens [http://localhost:5005](http://localhost:5005) inside the browser. The comments load in real-time from your active Firestore instance._
+    _Opens [http://localhost:5005](http://localhost:5005) inside the browser. The comments load in real-time from your mock API services._
 
 ---
 
 ### 🌐 Workflow D: Host / Core Platform Team
 
-- **Focus**: Main application container shell, global routing, header & sidebar, shared Zustand stores, and Firebase Auth synchronization.
+- **Focus**: Main application container shell, global routing, header & sidebar, shared Zustand stores (Cart, UI, Products), light/dark color scheme synchronizers, and mock user auth.
 - **MFE Location**: `apps/host`
 - **Local Run Commands**:
   ```bash
