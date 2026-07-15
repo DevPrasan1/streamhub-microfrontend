@@ -36,6 +36,8 @@ export const useAuthStore = getAuthStore();
 interface ProductState {
   selectedProduct: Product | null;
   setSelectedProduct: (product: Product | null) => void;
+  activeCategory: string;
+  setActiveCategory: (category: string) => void;
 }
 
 const getProductStore = () => {
@@ -45,6 +47,8 @@ const getProductStore = () => {
       (window as any)[key] = create<ProductState>((set) => ({
         selectedProduct: null,
         setSelectedProduct: (selectedProduct) => set({ selectedProduct }),
+        activeCategory: 'All',
+        setActiveCategory: (activeCategory) => set({ activeCategory }),
       }));
     }
     return (window as any)[key];
@@ -52,6 +56,8 @@ const getProductStore = () => {
   return create<ProductState>((set) => ({
     selectedProduct: null,
     setSelectedProduct: (selectedProduct) => set({ selectedProduct }),
+    activeCategory: 'All',
+    setActiveCategory: (activeCategory) => set({ activeCategory }),
   }));
 };
 

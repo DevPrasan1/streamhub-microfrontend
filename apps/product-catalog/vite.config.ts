@@ -11,6 +11,7 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes: {
         './ProductCatalogApp': './src/App.tsx',
+        './CategorySelector': './src/CategorySelector.tsx',
       },
       shared: ['react', 'react-dom', 'zustand', 'react-router-dom', '@mfe/shared-store'],
     }),

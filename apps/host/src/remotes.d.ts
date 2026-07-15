@@ -3,6 +3,11 @@ declare module 'product_catalog/ProductCatalogApp' {
   export default Component;
 }
 
+declare module 'product_catalog/CategorySelector' {
+  const Component: React.ComponentType;
+  export default Component;
+}
+
 declare module 'product_details/ProductDetailsApp' {
   const Component: React.ComponentType;
   export default Component;

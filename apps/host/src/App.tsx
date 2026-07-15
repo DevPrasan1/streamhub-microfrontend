@@ -30,9 +30,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   override render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 bg-zinc-950/80 rounded-xl border border-zinc-800 text-center m-6 min-h-[400px]">
-          <h2 className="text-xl font-bold text-zinc-100 mb-2">MFE Load Error</h2>
-          <p className="text-zinc-400 text-sm max-w-sm mb-6">
+        <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-zinc-950/80 rounded-xl border border-zinc-200 dark:border-zinc-800 text-center m-6 min-h-[400px]">
+          <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">MFE Load Error</h2>
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-sm mb-6">
             Something went wrong while rendering this micro-frontend component.
           </p>
           <button
@@ -52,11 +52,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 const VideoBrowserApp = React.lazy(() => import('product_catalog/ProductCatalogApp'));
 const PlayerApp = React.lazy(() => import('product_details/ProductDetailsApp'));
 const CommunityApp = React.lazy(() => import('product_reviews/ProductReviewsApp'));
+const CategorySelectorApp = React.lazy(() => import('product_catalog/CategorySelector'));
 
 // Product Detail Page container
 function ProductPage() {
   const { productId } = useParams<{ productId: string }>();
   const { selectedProduct, setSelectedProduct } = useProductStore();
+  const { theme } = useUIStore();
 
   useEffect(() => {
     if (productId) {
@@ -87,7 +89,12 @@ function ProductPage() {
         <ErrorBoundary>
           <Suspense
             fallback={
-              <div className="h-[480px] bg-zinc-900 animate-pulse rounded-xl flex items-center justify-center text-zinc-500">
+              <div
+                className={`h-[480px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
+                  ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                  : 'bg-white border-zinc-200 text-zinc-400'
+                  }`}
+              >
                 Loading Product Details MFE...
               </div>
             }
@@ -101,7 +108,12 @@ function ProductPage() {
         <ErrorBoundary>
           <Suspense
             fallback={
-              <div className="h-[300px] bg-zinc-900 animate-pulse rounded-xl flex items-center justify-center text-zinc-500">
+              <div
+                className={`h-[300px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
+                  ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
+                  : 'bg-white border-zinc-200 text-zinc-400'
+                  }`}
+              >
                 Loading Product Reviews MFE...
               </div>
             }
@@ -174,9 +186,8 @@ function MainLayout() {
     >
       {/* Header */}
       <header
-        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${
-          theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
-        }`}
+        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
+          }`}
       >
         <div className="flex items-center gap-4">
           <button onClick={toggleSidebar} className="text-zinc-400 hover:text-zinc-100 transition">
@@ -270,19 +281,22 @@ function MainLayout() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-lg text-lg transition ${
-              theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
-            }`}
+            className={`p-2 rounded-lg text-lg transition ${theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
+              }`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
 
           {user ? (
-            <div className="flex items-center gap-3">
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition duration-150"
+              title="Profile Settings"
+            >
               <Avatar name={user.displayName} src={user.photoURL} />
               <span className="text-sm font-medium hidden sm:inline">{user.displayName}</span>
-            </div>
+            </Link>
           ) : (
             <Button onClick={() => navigate('/login')}>Sign In</Button>
           )}
@@ -293,11 +307,10 @@ function MainLayout() {
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${
-            theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
-          }`}
+          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
+            }`}
         >
-          <nav className="p-4 flex flex-col gap-2">
+          {/* <nav className="p-4 flex flex-col gap-2">
             <Link
               to="/"
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium ${
@@ -308,17 +321,17 @@ function MainLayout() {
             >
               <span>🏠</span> Home Catalog
             </Link>
-            <Link
-              to="/profile"
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition font-medium ${
-                theme === 'dark'
-                  ? 'text-zinc-300 hover:bg-zinc-850 hover:text-zinc-150'
-                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
-              }`}
-            >
-              <span>👤</span> Profile Settings
-            </Link>
-          </nav>
+          </nav> */}
+          <div
+            className={`border-t p-4 flex-1 flex flex-col min-h-0 ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'}`}
+          >
+
+            <ErrorBoundary>
+              <Suspense fallback={<div className="text-xs text-zinc-500 px-4">Loading categories...</div>}>
+                <CategorySelectorApp />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
         </aside>
 
         {/* Content Area */}
@@ -349,14 +362,23 @@ function MainLayout() {
               path="/profile"
               element={
                 <div className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Profile Settings</h2>
+                  <h2 className={`text-xl font-bold mb-4 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-800'}`}>
+                    Profile Settings
+                  </h2>
                   {user ? (
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 max-w-md">
+                    <div
+                      className={`p-6 rounded-xl border max-w-md ${theme === 'dark'
+                        ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
+                        : 'bg-white border-zinc-200 text-zinc-850'
+                        }`}
+                    >
                       <div className="flex items-center gap-4">
                         <Avatar name={user.displayName} src={user.photoURL} className="w-16 h-16 text-xl" />
                         <div>
                           <h3 className="font-semibold text-lg">{user.displayName}</h3>
-                          <p className="text-zinc-400 text-sm">{user.email}</p>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                       <Button
@@ -376,7 +398,9 @@ function MainLayout() {
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-zinc-400">Please sign in to view your profile settings.</p>
+                    <p className={theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}>
+                      Please sign in to view your profile settings.
+                    </p>
                   )}
                 </div>
               }
@@ -394,6 +418,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { setUser } = useAuthStore();
+  const { theme } = useUIStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -425,11 +450,14 @@ function LoginPage() {
 
   return (
     <div className="flex items-center justify-center p-12">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center text-zinc-100 mb-2">
+      <div
+        className={`p-8 max-w-md w-full border rounded-xl shadow-sm dark:shadow-2xl transition duration-200 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
+          }`}
+      >
+        <h2 className={`text-2xl font-bold text-center mb-2 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-800'}`}>
           {isSignUp ? 'Create your account' : 'Welcome back'}
         </h2>
-        <p className="text-zinc-400 text-sm text-center mb-6">
+        <p className={`text-sm text-center mb-6 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-550'}`}>
           {isSignUp ? 'Join community and sync orders' : 'Sign in to access your profile settings'}
         </p>
 
@@ -439,26 +467,40 @@ function LoginPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Email Address</label>
+            <label
+              className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-550'}`}
+            >
+              Email Address
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition"
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
+                ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
+                : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
+                }`}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Password</label>
+            <label
+              className={`block text-xs font-semibold mb-1.5 ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-550'}`}
+            >
+              Password
+            </label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition"
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
+                ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
+                : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
+                }`}
             />
           </div>
 
@@ -469,10 +511,12 @@ function LoginPage() {
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-zinc-800"></div>
+            <div className={`w-full border-t ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'}`}></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-zinc-900 px-2 text-zinc-500">Or continue with</span>
+            <span className={`px-2 ${theme === 'dark' ? 'bg-zinc-900 text-zinc-500' : 'bg-white text-zinc-400'}`}>
+              Or continue with
+            </span>
           </div>
         </div>
 
@@ -497,7 +541,7 @@ function LoginPage() {
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
           <button
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-indigo-400 hover:text-indigo-300 font-medium underline"
+            className="text-indigo-650 dark:text-indigo-400 hover:underline font-medium"
           >
             {isSignUp ? 'Sign In' : 'Sign Up'}
           </button>

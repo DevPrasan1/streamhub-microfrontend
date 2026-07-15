@@ -12,13 +12,12 @@ export default function App() {
     navigate = null;
   }
 
-  const { setSelectedProduct } = useProductStore();
+  const { setSelectedProduct, activeCategory, setActiveCategory } = useProductStore();
   const { searchQuery } = useUIStore();
   const [localSearch, setLocalSearch] = useState('');
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('All');
 
   // Detect standalone mode
   const isStandalone = typeof window !== 'undefined' && window.location.port !== '5005';
@@ -77,24 +76,24 @@ export default function App() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Filters Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
-        <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
-          <Tabs
-            tabs={categories.map((c) => ({ id: c, label: c.toUpperCase() }))}
-            activeTab={activeCategory}
-            onChange={setActiveCategory}
-            className="flex-nowrap border-b-0 whitespace-nowrap overflow-x-auto"
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-4 shrink-0">
-          {isStandalone && (
+      {/* Filters Bar (Only show in standalone mode) */}
+      {isStandalone && (
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
+          <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar scroll-smooth">
+            <Tabs
+              tabs={categories.map((c) => ({ id: c, label: c.toUpperCase() }))}
+              activeTab={activeCategory}
+              onChange={setActiveCategory}
+              className="flex-nowrap border-b-0 whitespace-nowrap overflow-x-auto"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-4 shrink-0">
             <div className="w-full sm:w-64">
               <Search placeholder="Search products..." onChange={(e) => setLocalSearch(e.target.value)} />
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Products Grid */}
       {loading ? (
