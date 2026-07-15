@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { User, Product, CartItem } from '@mfe/shared-types';
 
 // --- AUTH STORE ---
@@ -13,21 +14,37 @@ const getAuthStore = () => {
   const key = '__mfe_auth_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
-      (window as any)[key] = create<AuthState>((set) => ({
+      (window as any)[key] = create<AuthState>()(
+        persist(
+          (set) => ({
+            user: null,
+            loading: true,
+            setUser: (user) => set({ user }),
+            setLoading: (loading) => set({ loading }),
+          }),
+          {
+            name: 'mfe-auth-storage',
+            partialize: (state) => ({ user: state.user }),
+          }
+        )
+      );
+    }
+    return (window as any)[key];
+  }
+  return create<AuthState>()(
+    persist(
+      (set) => ({
         user: null,
         loading: true,
         setUser: (user) => set({ user }),
         setLoading: (loading) => set({ loading }),
-      }));
-    }
-    return (window as any)[key];
-  }
-  return create<AuthState>((set) => ({
-    user: null,
-    loading: true,
-    setUser: (user) => set({ user }),
-    setLoading: (loading) => set({ loading }),
-  }));
+      }),
+      {
+        name: 'mfe-auth-storage',
+        partialize: (state) => ({ user: state.user }),
+      }
+    )
+  );
 };
 
 export const useAuthStore = getAuthStore();
@@ -75,7 +92,46 @@ const getCartStore = () => {
   const key = '__mfe_cart_store__';
   if (typeof window !== 'undefined') {
     if (!(window as any)[key]) {
-      (window as any)[key] = create<CartState>((set) => ({
+      (window as any)[key] = create<CartState>()(
+        persist(
+          (set) => ({
+            cartItems: [],
+            addToCart: (product) =>
+              set((state) => {
+                const existingIndex = state.cartItems.findIndex((item) => item.product.id === product.id);
+                if (existingIndex > -1) {
+                  const newItems = [...state.cartItems];
+                  newItems[existingIndex].quantity += 1;
+                  return { cartItems: newItems };
+                }
+                return { cartItems: [...state.cartItems, { product, quantity: 1 }] };
+              }),
+            removeFromCart: (productId) =>
+              set((state) => {
+                const existingIndex = state.cartItems.findIndex((item) => item.product.id === productId);
+                if (existingIndex > -1) {
+                  const newItems = [...state.cartItems];
+                  if (newItems[existingIndex].quantity > 1) {
+                    newItems[existingIndex].quantity -= 1;
+                    return { cartItems: newItems };
+                  }
+                  return { cartItems: newItems.filter((item) => item.product.id !== productId) };
+                }
+                return state;
+              }),
+            clearCart: () => set({ cartItems: [] }),
+          }),
+          {
+            name: 'mfe-cart-storage',
+          }
+        )
+      );
+    }
+    return (window as any)[key];
+  }
+  return create<CartState>()(
+    persist(
+      (set) => ({
         cartItems: [],
         addToCart: (product) =>
           set((state) => {
@@ -101,37 +157,12 @@ const getCartStore = () => {
             return state;
           }),
         clearCart: () => set({ cartItems: [] }),
-      }));
-    }
-    return (window as any)[key];
-  }
-  return create<CartState>((set) => ({
-    cartItems: [],
-    addToCart: (product) =>
-      set((state) => {
-        const existingIndex = state.cartItems.findIndex((item) => item.product.id === product.id);
-        if (existingIndex > -1) {
-          const newItems = [...state.cartItems];
-          newItems[existingIndex].quantity += 1;
-          return { cartItems: newItems };
-        }
-        return { cartItems: [...state.cartItems, { product, quantity: 1 }] };
       }),
-    removeFromCart: (productId) =>
-      set((state) => {
-        const existingIndex = state.cartItems.findIndex((item) => item.product.id === productId);
-        if (existingIndex > -1) {
-          const newItems = [...state.cartItems];
-          if (newItems[existingIndex].quantity > 1) {
-            newItems[existingIndex].quantity -= 1;
-            return { cartItems: newItems };
-          }
-          return { cartItems: newItems.filter((item) => item.product.id !== productId) };
-        }
-        return state;
-      }),
-    clearCart: () => set({ cartItems: [] }),
-  }));
+      {
+        name: 'mfe-cart-storage',
+      }
+    )
+  );
 };
 
 export const useCartStore = getCartStore();
