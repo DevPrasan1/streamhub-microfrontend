@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Link, useNavigate, useParams } from 'reac
 import { useAuthStore, usePlayerStore, useUIStore } from '@streamhub/shared-store';
 import { Button, Avatar, Search, Spinner } from '@streamhub/shared-ui';
 import { YT_CHANNELS } from '@streamhub/shared-utils';
+import { auth, googleProvider, signInWithPopup, signOut, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@streamhub/firebase';
 
 // Lazy load Remotes
 const VideoBrowserApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
@@ -104,8 +105,27 @@ function WatchPage() {
 
 function MainLayout() {
   const { theme, sidebarOpen, toggleSidebar, setSearchQuery } = useUIStore();
-  const { user } = useAuthStore();
+  const { user, setUser, setLoading } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({
+          uid: firebaseUser.uid,
+          displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Firebase User',
+          email: firebaseUser.email || '',
+          photoURL: firebaseUser.photoURL || undefined,
+          createdAt: firebaseUser.metadata.creationTime || new Date().toISOString()
+        });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [setUser, setLoading]);
 
   return (
     <div className={`h-screen flex flex-col ${theme === 'dark' ? 'bg-background text-zinc-100' : 'bg-white text-zinc-900'}`}>
@@ -171,23 +191,7 @@ function MainLayout() {
               </div>
             } />
             <Route path="/watch/:channelId" element={<WatchPage />} />
-            <Route path="/login" element={
-              <div className="flex items-center justify-center p-12">
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full text-center">
-                  <h2 className="text-2xl font-bold">Welcome back</h2>
-                  <p className="text-zinc-400 mt-2">Sign in to sync your comments and favorites</p>
-                  <Button className="w-full mt-6" onClick={() => {
-                    useAuthStore.getState().setUser({
-                      uid: 'user-123',
-                      displayName: 'Demo User',
-                      email: 'demo@streamhub.io',
-                      createdAt: new Date().toISOString()
-                    });
-                    navigate('/');
-                  }}>Sign In (Demo Account)</Button>
-                </div>
-              </div>
-            } />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-4">Profile</h2>
@@ -200,9 +204,14 @@ function MainLayout() {
                         <p className="text-zinc-400 text-sm">{user.email}</p>
                       </div>
                     </div>
-                    <Button variant="danger" className="mt-6 w-full" onClick={() => {
-                      useAuthStore.getState().setUser(null);
-                      navigate('/');
+                    <Button variant="danger" className="mt-6 w-full" onClick={async () => {
+                      try {
+                        await signOut(auth);
+                        setUser(null);
+                        navigate('/');
+                      } catch (err) {
+                        console.error("Sign out failed:", err);
+                      }
                     }}>Sign Out</Button>
                   </div>
                 ) : (
@@ -212,6 +221,131 @@ function MainLayout() {
             } />
           </Routes>
         </main>
+      </div>
+    </div>
+  );
+}
+
+function LoginPage() {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const { setUser } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+      navigate('/');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Authentication failed');
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithPopup(auth, googleProvider);
+      navigate('/');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Google sign-in failed');
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center p-12">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-8 max-w-md w-full">
+        <h2 className="text-2xl font-bold text-center text-zinc-100 mb-2">
+          {isSignUp ? 'Create your account' : 'Welcome back'}
+        </h2>
+        <p className="text-zinc-400 text-sm text-center mb-6">
+          {isSignUp ? 'Join community and sync favorites' : 'Sign in to sync your comments and favorites'}
+        </p>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs rounded-lg p-3 mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Email Address</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1.5">Password</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <Button type="submit" className="w-full mt-2">
+            {isSignUp ? 'Sign Up' : 'Sign In'}
+          </Button>
+        </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-zinc-800"></div>
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-zinc-900 px-2 text-zinc-500">Or continue with</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <Button variant="secondary" className="w-full" onClick={handleGoogleSignIn}>
+            Sign In with Google
+          </Button>
+
+          <button
+            className="text-xs text-zinc-500 hover:text-zinc-300 underline transition cursor-pointer text-center"
+            onClick={() => {
+              setUser({
+                uid: 'demo-user-123',
+                displayName: 'Demo User',
+                email: 'demo@streamhub.io',
+                createdAt: new Date().toISOString()
+              });
+              navigate('/');
+            }}
+          >
+            Continue as Guest (Demo Account)
+          </button>
+        </div>
+
+        <p className="text-xs text-center text-zinc-500 mt-6">
+          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-indigo-400 hover:text-indigo-300 font-medium underline"
+          >
+            {isSignUp ? 'Sign In' : 'Sign Up'}
+          </button>
+        </p>
       </div>
     </div>
   );

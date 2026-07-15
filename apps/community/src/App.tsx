@@ -2,37 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore, usePlayerStore } from '@streamhub/shared-store';
 import { Button, CommentCard } from '@streamhub/shared-ui';
 import { Comment } from '@streamhub/shared-types';
-
-const MOCK_COMMENTS: Record<string, Comment[]> = {
-  nasa: [
-    {
-      id: 'c1',
-      channelId: 'nasa',
-      uid: 'user-999',
-      userName: 'AstroLover',
-      message: 'This live stream from space is absolutely breathtaking!',
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: 'c2',
-      channelId: 'nasa',
-      uid: 'user-888',
-      userName: 'StarGazer',
-      message: 'Can\'t wait for the next Artemis launch updates!',
-      createdAt: new Date(Date.now() - 7200000).toISOString(),
-    }
-  ],
-  france24: [
-    {
-      id: 'c3',
-      channelId: 'france24',
-      uid: 'user-777',
-      userName: 'NewsBuff',
-      message: 'Excellent coverage of global politics.',
-      createdAt: new Date(Date.now() - 1800000).toISOString(),
-    }
-  ]
-};
+import { db, collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc } from '@streamhub/firebase';
 
 export default function App() {
   const { user } = useAuthStore();
@@ -44,38 +14,60 @@ export default function App() {
   const channelId = selectedChannel?.id || 'default';
 
   useEffect(() => {
-    const list = MOCK_COMMENTS[channelId] || [];
-    setComments([...list]);
+    if (!channelId) return;
+
+    // Listen to comments from Firestore for this video/channel
+    const q = query(
+      collection(db, 'comments'),
+      where('channelId', '==', channelId),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list: Comment[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          id: docSnap.id,
+          channelId: data.channelId,
+          uid: data.uid,
+          userName: data.userName,
+          message: data.message,
+          createdAt: data.createdAt,
+        });
+      });
+      setComments(list);
+    }, (error) => {
+      console.error("Firestore loading error:", error);
+    });
+
+    return () => unsubscribe();
   }, [channelId]);
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCommentText.trim()) return;
 
-    const newComment: Comment = {
-      id: `c_${Date.now()}`,
-      channelId,
-      uid: user?.uid || 'anonymous',
-      userName: user?.displayName || 'Anonymous Viewer',
-      message: newCommentText,
-      createdAt: new Date().toISOString(),
-    };
-
-    const updated = [newComment, ...comments];
-    setComments(updated);
-    
-    if (!MOCK_COMMENTS[channelId]) {
-      MOCK_COMMENTS[channelId] = [];
+    try {
+      await addDoc(collection(db, 'comments'), {
+        channelId,
+        uid: user?.uid || 'anonymous',
+        userName: user?.displayName || 'Anonymous Viewer',
+        message: newCommentText,
+        createdAt: new Date().toISOString(),
+      });
+      setNewCommentText('');
+    } catch (err) {
+      console.error("Failed to add comment:", err);
     }
-    MOCK_COMMENTS[channelId] = [newComment, ...MOCK_COMMENTS[channelId]];
-
-    setNewCommentText('');
   };
 
-  const handleDeleteComment = (id: string) => {
-    const updated = comments.filter((c) => c.id !== id);
-    setComments(updated);
-    MOCK_COMMENTS[channelId] = MOCK_COMMENTS[channelId].filter((c) => c.id !== id);
+  const handleDeleteComment = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'comments', id));
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
+    }
   };
 
   const sortedComments = [...comments].sort((a, b) => {
