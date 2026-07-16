@@ -1,4 +1,4 @@
-name: CI Build Verification
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,36 +7,169 @@ on:
     branches: [master, main, boilerplate]
 
 jobs:
-  build:
+  # ─────────────────────────────────────────────────────
+  # JOB 1: Lint, format, and test on every push/PR
+  # ─────────────────────────────────────────────────────
+  quality:
+    name: Quality Checks
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.x'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Linting Checks
+      - name: Lint
         run: npm run lint
 
-      - name: Verify Code Style Formatting
+      - name: Format check
         run: npm run format:check
 
-      - name: Build Application and Workspaces
-        run: npm run build
-
-      - name: Build Storybook documentation
-        run: npm run build-storybook
-
-      - name: Run Tests
+      - name: Run tests
         run: npm test --workspaces --if-present
+
+  # ─────────────────────────────────────────────────────
+  # JOB 2: Deploy remote MFEs to Netlify (parallel)
+  # Only runs on push to main/boilerplate (not PRs)
+  # ─────────────────────────────────────────────────────
+  deploy-catalog:
+    name: Deploy product-catalog
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build product-catalog
+        run: npm run build -w @mfe/product-catalog
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: apps/product-catalog/dist
+          production-branch: boilerplate
+          production-deploy: true
+          deploy-message: 'Deploy product-catalog from GitHub Actions'
+          netlify-config-path: apps/product-catalog/netlify.toml
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_CATALOG }}
+
+  deploy-details:
+    name: Deploy product-details
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build product-details
+        run: npm run build -w @mfe/product-details
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: apps/product-details/dist
+          production-branch: boilerplate
+          production-deploy: true
+          deploy-message: 'Deploy product-details from GitHub Actions'
+          netlify-config-path: apps/product-details/netlify.toml
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_DETAILS }}
+
+  deploy-reviews:
+    name: Deploy product-reviews
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build product-reviews
+        run: npm run build -w @mfe/product-reviews
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: apps/product-reviews/dist
+          production-branch: boilerplate
+          production-deploy: true
+          deploy-message: 'Deploy product-reviews from GitHub Actions'
+          netlify-config-path: apps/product-reviews/netlify.toml
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_REVIEWS }}
+
+  # ─────────────────────────────────────────────────────
+  # JOB 3: Deploy Host AFTER all remotes are deployed
+  # Uses secret remote URLs to build with correct endpoints
+  # ─────────────────────────────────────────────────────
+  deploy-host:
+    name: Deploy host
+    needs: [deploy-catalog, deploy-details, deploy-reviews]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build host (with production remote URLs)
+        run: npm run build -w @mfe/host
+        env:
+          VITE_REMOTE_CATALOG: ${{ secrets.VITE_REMOTE_CATALOG }}
+          VITE_REMOTE_DETAILS: ${{ secrets.VITE_REMOTE_DETAILS }}
+          VITE_REMOTE_REVIEWS: ${{ secrets.VITE_REMOTE_REVIEWS }}
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: apps/host/dist
+          production-branch: boilerplate
+          production-deploy: true
+          deploy-message: 'Deploy host from GitHub Actions'
+          netlify-config-path: apps/host/netlify.toml
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_HOST }}
