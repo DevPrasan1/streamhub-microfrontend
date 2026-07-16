@@ -3,7 +3,7 @@ import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { useUIStore, useProductStore } from '@mfe/shared-store';
 
 export default function CategorySelector() {
-  const { theme } = useUIStore();
+  const { theme, setSidebarOpen } = useUIStore();
   const { activeCategory, setActiveCategory } = useProductStore();
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +66,9 @@ export default function CategorySelector() {
             key={category}
             onClick={() => {
               setActiveCategory(category);
+              if (typeof window !== 'undefined' && window.innerWidth < 640) {
+                setSidebarOpen(false);
+              }
               if (navigate) {
                 if (category === 'All') {
                   navigate('/');

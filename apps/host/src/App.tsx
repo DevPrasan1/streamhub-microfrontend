@@ -1,34 +1,13 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuthStore, useUIStore } from '@mfe/shared-store';
-import { Spinner, Avatar, Button } from '@mfe/shared-ui';
+import { Avatar, Button } from '@mfe/shared-ui';
 import { auth, signOut } from '@mfe/mock-api';
-import { ErrorBoundary } from './components/ErrorBoundary';
 import MainLayout from './layouts/MainLayout';
 import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
+import DiscoverProductsPage from './pages/DiscoverProductsPage';
 
-// Lazy load Catalog Remote MFE App
-const VideoBrowserApp = React.lazy(() => import('product_catalog/ProductCatalogApp'));
-
-function DiscoverProductsPage() {
-  return (
-    <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">Discover Products</h2>
-      <ErrorBoundary>
-        <Suspense
-          fallback={
-            <div className="flex justify-center p-12">
-              <Spinner />
-            </div>
-          }
-        >
-          <VideoBrowserApp />
-        </Suspense>
-      </ErrorBoundary>
-    </div>
-  );
-}
 
 function ProfilePage() {
   const { user, setUser } = useAuthStore();
@@ -42,9 +21,8 @@ function ProfilePage() {
       </h2>
       {user ? (
         <div
-          className={`p-6 rounded-xl border max-w-md ${
-            theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-850'
-          }`}
+          className={`p-6 rounded-xl border max-w-md ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-850'
+            }`}
         >
           <div className="flex items-center gap-4">
             <Avatar name={user.displayName} src={user.photoURL} className="w-16 h-16 text-xl" />

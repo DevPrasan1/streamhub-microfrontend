@@ -4,8 +4,8 @@ import { useProductStore, useUIStore } from '@mfe/shared-store';
 import { Spinner, ProductCard } from '@mfe/shared-ui';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
-const PlayerApp = React.lazy(() => import('product_details/ProductDetailsApp'));
-const CommunityApp = React.lazy(() => import('product_reviews/ProductReviewsApp'));
+const ProductDetailsApp = React.lazy(() => import('product_details/ProductDetailsApp'));
+const ProductReviewsApp = React.lazy(() => import('product_reviews/ProductReviewsApp'));
 
 export default function ProductPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -71,7 +71,7 @@ export default function ProductPage() {
                 </div>
               }
             >
-              <PlayerApp />
+              <ProductDetailsApp />
             </Suspense>
           </ErrorBoundary>
         </div>
@@ -91,7 +91,7 @@ export default function ProductPage() {
                 </div>
               }
             >
-              <CommunityApp />
+              <ProductReviewsApp />
             </Suspense>
           </ErrorBoundary>
         </div>

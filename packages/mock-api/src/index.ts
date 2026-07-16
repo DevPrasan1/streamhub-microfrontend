@@ -102,18 +102,16 @@ async function loadCommentsFromRest(productId: number) {
   }
 
   try {
-    const limit = 5;
-    const skip = (productId * 7) % 25;
-    const res = await fetch(`https://dummyjson.com/comments?limit=${limit}&skip=${skip}`);
+    const res = await fetch(`https://dummyjson.com/products/${productId}`);
     const data = await res.json();
 
-    const mapped: Comment[] = data.comments.map((c: any, index: number) => ({
-      id: `rest-comment-${c.id}`,
+    const mapped: Comment[] = (data.reviews || []).map((r: any, index: number) => ({
+      id: `rest-review-${productId}-${index}`,
       productId: productId,
-      uid: `dummy-user-${c.user.id}`,
-      userName: c.user.fullName,
-      message: c.body,
-      createdAt: new Date(Date.now() - (index + 1) * 3600000).toISOString(),
+      uid: `reviewer-${r.reviewerEmail}`,
+      userName: r.reviewerName,
+      message: `★ ${r.rating}/5 - ${r.comment}`,
+      createdAt: r.date || new Date(Date.now() - (index + 1) * 3600000).toISOString(),
     }));
 
     commentsCache[productId] = mapped;
@@ -235,9 +233,11 @@ export const deleteDoc = async (docRef: any) => {
   const commentId = docRef.id;
 
   try {
-    await fetch(`https://dummyjson.com/comments/${commentId.replace('rest-comment-', '')}`, {
-      method: 'DELETE',
-    });
+    if (commentId.startsWith('rest-comment-')) {
+      await fetch(`https://dummyjson.com/comments/${commentId.replace('rest-comment-', '')}`, {
+        method: 'DELETE',
+      });
+    }
   } catch (e) {
     // Proceed to delete locally
   }

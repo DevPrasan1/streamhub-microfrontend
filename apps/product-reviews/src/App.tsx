@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore, useProductStore, useUIStore } from '@mfe/shared-store';
 import { Comment } from '@mfe/shared-types';
-import { db, collection, query, where, orderBy, onSnapshot, addDoc, deleteDoc, doc } from '@mfe/mock-api';
 import ReviewHeader from './components/ReviewHeader';
 import ReviewForm from './components/ReviewForm';
 import ReviewList from './components/ReviewList';
@@ -17,47 +16,56 @@ export default function App() {
   const productId = selectedProduct?.id || 0;
 
   useEffect(() => {
-    if (productId === 0) {
-      setReviews([]);
-      return;
-    }
-
-    const q = query(collection(db, 'reviews'), where('productId', '==', productId), orderBy('createdAt', 'desc'));
-
-    const unsubscribe = onSnapshot(q, (snapshot: any) => {
-      const list: Comment[] = [];
-      snapshot.docs.forEach((doc: any) => {
-        list.push(doc.data());
-      });
+    if (selectedProduct && selectedProduct.reviews) {
+      const list: Comment[] = selectedProduct.reviews.map((r: any, index: number) => ({
+        id: `store-review-${selectedProduct.id}-${index}`,
+        productId: selectedProduct.id,
+        uid: `reviewer-${r.reviewerEmail}`,
+        userName: r.reviewerName,
+        message: `★ ${r.rating}/5 - ${r.comment}`,
+        createdAt: r.date,
+      }));
       setReviews(list);
-    });
-
-    return () => unsubscribe();
-  }, [productId]);
+    } else {
+      setReviews([]);
+    }
+  }, [selectedProduct]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReviewText.trim() || !user || productId === 0) return;
 
-    try {
-      await addDoc(collection(db, 'reviews'), {
-        productId: productId,
-        uid: user.uid,
-        userName: user.displayName || user.email.split('@')[0],
-        message: newReviewText.trim(),
-        createdAt: new Date().toISOString(),
-      });
-      setNewReviewText('');
-    } catch (err) {
-      console.error('Failed to post review:', err);
+    const newReview = {
+      rating: 5, // Default rating for new user review
+      comment: newReviewText.trim(),
+      date: new Date().toISOString(),
+      reviewerName: user.displayName || user.email.split('@')[0],
+      reviewerEmail: user.email,
+    };
+
+    if (selectedProduct) {
+      const updatedProduct = {
+        ...selectedProduct,
+        reviews: [...(selectedProduct.reviews || []), newReview],
+      };
+      useProductStore.setState({ selectedProduct: updatedProduct });
     }
+    setNewReviewText('');
   };
 
   const handleDelete = async (reviewId: string) => {
-    try {
-      await deleteDoc(doc(db, 'reviews', reviewId));
-    } catch (err) {
-      console.error('Failed to delete review:', err);
+    if (!selectedProduct || !selectedProduct.reviews) return;
+
+    const match = reviewId.match(/store-review-\d+-(\d+)/);
+    if (match) {
+      const indexToDelete = parseInt(match[1], 10);
+      const updatedReviews = selectedProduct.reviews.filter((_, idx) => idx !== indexToDelete);
+
+      const updatedProduct = {
+        ...selectedProduct,
+        reviews: updatedReviews,
+      };
+      useProductStore.setState({ selectedProduct: updatedProduct });
     }
   };
 

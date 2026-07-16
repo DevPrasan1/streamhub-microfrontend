@@ -17,6 +17,8 @@ export default function App() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [categories, setCategories] = useState<string[]>(['All']);
 
   // Detect standalone mode
   const isStandalone = typeof window !== 'undefined' && !(window as any).__MFE_HOST__;
@@ -26,13 +28,44 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
+  // Fetch full category list for standalone filters once on mount
+  useEffect(() => {
+    const fetchCategoryList = async () => {
+      try {
+        const res = await fetch('https://dummyjson.com/products/category-list');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setCategories(['All', ...data.sort()]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories list:', err);
+      }
+    };
+    if (isStandalone) {
+      fetchCategoryList();
+    }
+  }, [isStandalone]);
+
+  // Fetch products from server-side pagination API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await fetch('https://dummyjson.com/products?limit=100');
+        const limit = itemsPerPage;
+        const skip = (currentPage - 1) * limit;
+
+        let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
+        if (activeSearch) {
+          url = `https://dummyjson.com/products/search?q=${encodeURIComponent(activeSearch)}&limit=${limit}&skip=${skip}`;
+        } else if (activeCategory && activeCategory !== 'All') {
+          url = `https://dummyjson.com/products/category/${encodeURIComponent(activeCategory)}?limit=${limit}&skip=${skip}`;
+        }
+
+        const res = await fetch(url);
         const data = await res.json();
+
         setProducts(data.products || []);
+        setTotalProducts(data.total || 0);
       } catch (err) {
         console.error('Failed to fetch products:', err);
       } finally {
@@ -40,27 +73,20 @@ export default function App() {
       }
     };
     fetchProducts();
-  }, []);
-
-  // Filter Categories dynamically
-  const categories = ['All', ...Array.from(new Set(products.map((p) => p.category))).sort()];
-
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = activeSearch
-      ? (product.title || '').toLowerCase().includes(activeSearch.toLowerCase()) ||
-        (product.description || '').toLowerCase().includes(activeSearch.toLowerCase()) ||
-        (product.brand || '').toLowerCase().includes(activeSearch.toLowerCase())
-      : true;
-
-    const matchesCategory = activeCategory === 'All' ? true : product.category === activeCategory;
-
-    return matchesSearch && matchesCategory;
-  });
+  }, [currentPage, activeCategory, activeSearch]);
 
   // Reset page number on filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory, activeSearch]);
+
+  // Scroll main container to top when page changes
+  useEffect(() => {
+    const mainContainer = document.querySelector('main');
+    if (mainContainer) {
+      mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentPage]);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -70,8 +96,8 @@ export default function App() {
   };
 
   // Pagination bounds
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(totalProducts / itemsPerPage);
+  const paginatedProducts = products;
 
   return (
     <div className="flex flex-col gap-6">
@@ -93,7 +119,7 @@ export default function App() {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredProducts.length}
+          totalItems={totalProducts}
           onPageChange={setCurrentPage}
         />
       )}
