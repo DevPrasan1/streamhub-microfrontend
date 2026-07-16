@@ -14,6 +14,52 @@
 >
 > 🚀 **Deployment Guide**: For instructions on deploying the host and remotes to Netlify, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Netlify-success?style=for-the-badge&logo=netlify)](https://micro-frontend-vite-boilerplate.netlify.app/)
+
+[![React](https://img.shields.io/badge/React-19-blue?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5-purple?logo=vite)](https://vitejs.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Module Federation](https://img.shields.io/badge/Module_Federation-enabled-success?logo=webpack)](https://github.com/originjs/vite-plugin-federation)
+[![Storybook](https://img.shields.io/badge/Storybook-10-ff69b4?logo=storybook)](https://storybook.js.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](#-license)
+
+
+
+## 📌 Table of Contents
+
+- [✨ Features](#-features)
+- [Preview & Screenshots](#preview--screenshots)
+- [💡 Why This Boilerplate?](#-why-this-boilerplate)
+- [🚀 Use This Repository](#-use-this-repository)
+- [🚀 Getting Started](#-getting-started)
+- [🏗️ High-Level Architecture](#️-high-level-architecture)
+- [⚙️ How Module Federation Works Here](#️-how-module-federation-works-here)
+- [⚡ Performance Metrics](#-performance-metrics)
+- [🗺️ Roadmap](#️-roadmap)
+- [🛠️ Monorepo CLI Commands](#️-monorepo-cli-commands)
+- [🤝 Contributing](#-contributing)
+- [⭐ Support](#-support)
+- [📄 License](#-license)
+
+---
+
+## ✨ Features
+
+- ✅ **React 19 & TypeScript 5** – Clean domain types and standard React 19 component structures.
+- ✅ **Vite 5** – Sub-second Hot Module Replacement (HMR) and optimized build outputs.
+- ✅ **Module Federation** – Dynamic runtime script sharing and remote application loading using `@originjs/vite-plugin-federation`.
+- ✅ **Dynamic Remotes** – Resilient mounting and error boundary isolation across all micro-frontends.
+- ✅ **Shared Zustand Store** – Global state synchronization across MFE boundaries mapped to browser `window` context.
+- ✅ **Storybook 10** – Isolated playground and documentation for shared design system UI components.
+- ✅ **Tailwind CSS & PostCSS** – Unified, utility-first styling token patterns across apps and packages.
+- ✅ **Authentication Flow** – Unified mock login session details shared dynamically at runtime.
+- ✅ **Theme Switching** – Instant light/dark theme toggles synchronized across remote boundaries.
+- ✅ **Mock Backend Services** – Persistent simulated client-side database utilizing browser `localStorage`.
+- ✅ **CI/CD Quality Controls** – Automation workflows for formatting, compilation safety, and lint validation.
+- ✅ **Independent Deployments** – Independently buildable and deployable MFE container and remotes.
+
+---
+
 ## Preview & Screenshots
 
 | Homepage (Light Theme) | Homepage (Dark Theme) |
@@ -24,23 +70,41 @@
 | **Cart Dropdown** | **Sign In Screen** |
 | ![Cart](./assets/screenshots/product_cart.jpeg) | ![Sign In](./assets/screenshots/login_1.jpeg) |
 
+## 💡 Why This Boilerplate?
+
+Most Micro Frontend examples available online are:
+
+- limited to simple demos
+- based on Webpack
+- missing shared state management
+- difficult to extend for production use
+
+This project demonstrates how to structure a scalable React application using Vite and Module Federation with patterns commonly found in enterprise environments.
+
+---
+
+## 🚀 Use This Repository
+
+Click **Use this template** to create your own project. 
+
+No need to fork. The boilerplate is ready for production development.
+
 ---
 
 ## 🚀 Getting Started
 
-To use this repository as a template for your own projects:
+To get started locally:
 
-1. Click the **"Use this template"** button at the top of the GitHub repository page.
-2. Clone your newly created repository:
+1. Clone your newly created repository:
    ```bash
    git clone <your-new-repo-url>
    cd micro-frontend-vite-boilerplate
    ```
-3. Install the workspaces and dependencies:
+2. Install the workspaces and dependencies:
    ```bash
    npm install
    ```
-4. Start the interactive development build:
+3. Start the interactive development build:
    ```bash
    npm run dev:mfe
    ```
@@ -86,6 +150,8 @@ The values below represent optimized builds running locally:
 | **Remote Entry script** | - | 3.74 kB | 3.44 kB | 3.44 kB |
 | **Lighthouse Performance** | 99+ | 99+ | 99+ | 99+ |
 
+> ℹ️ *Note: Measured on an Apple M4 using production builds. Results may vary depending on hardware and project size.*
+
 ---
 
 ## 🗺️ Roadmap
@@ -126,6 +192,27 @@ npm run lint
 # Launch Storybook Components Library
 npm run storybook
 ```
+
+## 🤝 Contributing
+
+Contributions are welcome!
+
+If you find a bug or have an idea for an improvement:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+Issues and feature requests are always welcome.
+
+---
+
+## ⭐ Support
+
+If this project helps you, consider giving it a ⭐ on GitHub.
+
+It helps others discover the project and motivates future improvements.
 
 ---
 
