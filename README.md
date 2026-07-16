@@ -1,5 +1,7 @@
 # MFE Boilerplate - E-Commerce Product Catalog (Micro-Frontend)
 
+> 🔗 **Live Production Demo**: [micro-frontend-vite-boilerplate.netlify.app](https://micro-frontend-vite-boilerplate.netlify.app/)
+>
 > **A production-inspired E-Commerce Product Catalog platform built with React, Vite, Module Federation, Storybook, Zustand, and a local Mock API.**
 >
 > The goal of this project is to demonstrate how a large enterprise e-commerce application can be split into independently developed and deployed Micro-Frontends (MFEs).
