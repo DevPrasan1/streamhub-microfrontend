@@ -17,7 +17,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   // Detect standalone mode
-  const isStandalone = typeof window !== 'undefined' && window.location.port !== '5005';
+  const isStandalone = typeof window !== 'undefined' && !(window as any).__MFE_HOST__;
   const activeSearch = isStandalone ? localSearch : searchQuery;
 
   // Pagination states

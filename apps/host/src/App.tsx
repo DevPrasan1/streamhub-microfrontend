@@ -109,11 +109,10 @@ function ProductPage() {
             <Suspense
               fallback={
                 <div
-                  className={`h-[480px] animate-pulse rounded-xl flex items-center justify-center border ${
-                    theme === 'dark'
+                  className={`h-[480px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
                       ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
                       : 'bg-white border-zinc-200 text-zinc-400'
-                  }`}
+                    }`}
                 >
                   Loading Product Details MFE...
                 </div>
@@ -129,11 +128,10 @@ function ProductPage() {
             <Suspense
               fallback={
                 <div
-                  className={`h-[300px] animate-pulse rounded-xl flex items-center justify-center border ${
-                    theme === 'dark'
+                  className={`h-[300px] animate-pulse rounded-xl flex items-center justify-center border ${theme === 'dark'
                       ? 'bg-zinc-900 border-zinc-800 text-zinc-500'
                       : 'bg-white border-zinc-200 text-zinc-400'
-                  }`}
+                    }`}
                 >
                   Loading Product Reviews MFE...
                 </div>
@@ -229,9 +227,8 @@ function MainLayout() {
     >
       {/* Header */}
       <header
-        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${
-          theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
-        }`}
+        className={`h-16 border-b px-6 flex items-center justify-between shrink-0 sticky top-0 z-40 backdrop-blur-md ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/80' : 'border-zinc-200 bg-white/80'
+          }`}
       >
         <div className="flex items-center gap-4">
           <button onClick={toggleSidebar} className="text-zinc-400 hover:text-zinc-100 transition">
@@ -322,16 +319,7 @@ function MainLayout() {
             </div>
           </Dropdown>
 
-          {/* Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className={`p-2 rounded-lg text-lg transition ${
-              theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
-            }`}
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {theme === 'light' ? '🌙' : '☀️'}
-          </button>
+
 
           {user ? (
             <Link
@@ -345,6 +333,16 @@ function MainLayout() {
           ) : (
             <Button onClick={() => navigate('/login')}>Sign In</Button>
           )}
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg text-lg transition ${theme === 'dark' ? 'hover:bg-zinc-900 text-amber-400' : 'hover:bg-zinc-150 text-indigo-600'
+              }`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
         </div>
       </header>
 
@@ -352,9 +350,8 @@ function MainLayout() {
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${
-            theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
-          }`}
+          className={`${sidebarOpen ? 'w-64' : 'w-0 overflow-hidden'} shrink-0 border-r transition-all duration-300 flex flex-col ${theme === 'dark' ? 'border-zinc-800 bg-zinc-950/40 text-zinc-300' : 'border-zinc-200 bg-white text-zinc-700'
+            }`}
         >
           {/* <nav className="p-4 flex flex-col gap-2">
             <Link
@@ -431,11 +428,10 @@ function MainLayout() {
                   </h2>
                   {user ? (
                     <div
-                      className={`p-6 rounded-xl border max-w-md ${
-                        theme === 'dark'
+                      className={`p-6 rounded-xl border max-w-md ${theme === 'dark'
                           ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
                           : 'bg-white border-zinc-200 text-zinc-850'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-4">
                         <Avatar name={user.displayName} src={user.photoURL} className="w-16 h-16 text-xl" />
@@ -516,9 +512,8 @@ function LoginPage() {
   return (
     <div className="flex items-center justify-center p-12">
       <div
-        className={`p-8 max-w-md w-full border rounded-xl shadow-sm dark:shadow-2xl transition duration-200 ${
-          theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
-        }`}
+        className={`p-8 max-w-md w-full border rounded-xl shadow-sm dark:shadow-2xl transition duration-200 ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
+          }`}
       >
         <h2 className={`text-2xl font-bold text-center mb-2 ${theme === 'dark' ? 'text-zinc-100' : 'text-zinc-800'}`}>
           {isSignUp ? 'Create your account' : 'Welcome back'}
@@ -544,11 +539,10 @@ function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${
-                theme === 'dark'
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
                   ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
                   : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
-              }`}
+                }`}
             />
           </div>
 
@@ -564,11 +558,10 @@ function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${
-                theme === 'dark'
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition border ${theme === 'dark'
                   ? 'bg-zinc-950 border-zinc-800 text-zinc-100 placeholder-zinc-550'
                   : 'bg-zinc-50 border-zinc-250 text-zinc-800 placeholder-zinc-400'
-              }`}
+                }`}
             />
           </div>
 
