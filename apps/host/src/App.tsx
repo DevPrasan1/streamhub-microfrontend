@@ -255,6 +255,7 @@ function MainLayout() {
         <div className="flex items-center gap-4">
           {/* Cart Dropdown */}
           <Dropdown
+            menuClassName="w-72"
             label={
               <div className="flex items-center gap-2 relative">
                 <span>🛒</span>
@@ -267,8 +268,8 @@ function MainLayout() {
               </div>
             }
           >
-            <div className="p-4 w-72 flex flex-col gap-3 text-zinc-150">
-              <h4 className="font-bold text-sm border-b border-zinc-800 pb-2 flex justify-between items-center">
+            <div className="p-4 flex flex-col gap-3 text-zinc-800 dark:text-zinc-200">
+              <h4 className="font-bold text-sm border-b border-zinc-200 dark:border-zinc-800 pb-2 flex justify-between items-center">
                 <span>Shopping Cart</span>
                 <span className="text-zinc-500 text-xs font-normal">({totalItems} items)</span>
               </h4>
@@ -289,7 +290,7 @@ function MainLayout() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="font-bold text-indigo-400">${item.product.price * item.quantity}</span>
+                          <span className="font-bold text-indigo-400">${(item.product.price * item.quantity).toFixed(2)}</span>
                           <button
                             onClick={() => removeFromCart(item.product.id)}
                             className="text-red-500 hover:text-red-400 transition"
@@ -300,7 +301,7 @@ function MainLayout() {
                       </div>
                     ))}
                   </div>
-                  <div className="border-t border-zinc-800 pt-2 flex justify-between items-center font-bold text-sm">
+                  <div className="border-t border-zinc-200 dark:border-zinc-800 pt-2 flex justify-between items-center font-bold text-sm">
                     <span>Total Price:</span>
                     <span className="text-indigo-400">${totalPrice.toFixed(2)}</span>
                   </div>

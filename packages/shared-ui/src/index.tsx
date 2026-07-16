@@ -38,8 +38,9 @@ export interface DropdownProps {
   label: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  menuClassName?: string;
 }
-export const Dropdown: React.FC<DropdownProps> = ({ label, children, className = '' }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ label, children, className = '', menuClassName = 'w-56' }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   return (
     <div className={`relative inline-block text-left ${className}`}>
@@ -50,8 +51,8 @@ export const Dropdown: React.FC<DropdownProps> = ({ label, children, className =
         {label}
       </button>
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-          <div className="py-1" onClick={() => setIsOpen(false)}>
+        <div className={`absolute right-0 mt-2 rounded-md shadow-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${menuClassName}`}>
+          <div className="py-1">
             {children}
           </div>
         </div>
