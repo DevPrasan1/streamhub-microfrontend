@@ -4,15 +4,15 @@
 >
 > The goal of this project is to demonstrate how a large enterprise e-commerce application can be split into independently developed and deployed Micro-Frontends (MFEs).
 >
-> 📖 **Developer Workflows**: For instructions on running standalone commands, integrated hot-rebuild environments, and workspace scripts cataloging, refer to [workflow.md](file:///Users/devprasan/Documents/video-management-software-with-MFE/workflow.md).
+> 📖 **Developer Workflows**: For instructions on running standalone commands, integrated hot-rebuild environments, and workspace scripts cataloging, refer to [workflow.md](./workflow.md).
 >
-> 🏗️ **MFE Boilerplate Guide**: To use this repository as a template or boilerplate for your own React Module Federation monorepo, see [BOILERPLATE.md](file:///Users/devprasan/Documents/video-management-software-with-MFE/BOILERPLATE.md).
+> 🏗️ **MFE Boilerplate Guide**: To use this repository as a template or boilerplate for your own React Module Federation monorepo, see [BOILERPLATE.md](./BOILERPLATE.md).
 >
-> 🚀 **Deployment Guide**: For instructions on deploying the host and remotes to Netlify, see [DEPLOYMENT.md](file:///Users/devprasan/Documents/video-management-software-with-MFE/DEPLOYMENT.md).
+> 🚀 **Deployment Guide**: For instructions on deploying the host and remotes to Netlify, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ---
 
-# 1. Project Goals
+## 1. Project Goals
 
 This project demonstrates:
 
@@ -27,7 +27,7 @@ This project demonstrates:
 
 ---
 
-# 2. Tech Stack
+## 2. Tech Stack
 
 - **Framework**: React 19 & TypeScript
 - **Bundler & Dev Server**: Vite (with Module Federation)
@@ -39,7 +39,7 @@ This project demonstrates:
 
 ---
 
-# 3. High-Level Architecture
+## 3. High-Level Architecture
 
 ```
                           MFE Monorepo
@@ -55,7 +55,7 @@ This project demonstrates:
 
 ---
 
-# 4. Applications (`/apps`)
+## 4. Applications (`/apps`)
 
 - **`host`**: The shell application. Coordinates global routing, authentication, shared header/sidebar, and dynamic remote mounting.
 - **`product-catalog`**: Remote MFE that displays product grids, categories selector, searches, and paginations. Exposes `ProductCatalogApp` and `CategorySelector`.
@@ -64,7 +64,7 @@ This project demonstrates:
 
 ---
 
-# 5. Shared Packages (`/packages`)
+## 5. Shared Packages (`/packages`)
 
 - **`shared-ui`**: Reusable Tailwind design system components (Button, Avatar, Card, Spinner, Dropdown, Modal, ProductCard, ReviewCard).
 - **`shared-store`**: Shared Zustand store singletons (Auth, Product, Cart, UI) mapped to window scope to avoid multi-instance memory leaks.
@@ -75,7 +75,7 @@ This project demonstrates:
 
 ---
 
-# 6. Responsibilities & Domains
+## 6. Responsibilities & Domains
 
 ### Host Shell
 
@@ -103,7 +103,7 @@ This project demonstrates:
 
 ---
 
-# 7. Shared State Model (Zustand)
+## 7. Shared State Model (Zustand)
 
 Global state is managed by lightweight store slices synchronized on the window context:
 
@@ -137,7 +137,7 @@ setSearchQuery(query: string)
 
 ---
 
-# 8. Local Mock Database Schema
+## 8. Local Mock Database Schema
 
 In the absence of Firebase, components interact with the `mock-api` layer which simulates Firestore collections using browser `localStorage`:
 
@@ -152,7 +152,7 @@ mfe_favorites_db           [{ uid, productIds: [] }]
 
 ---
 
-# 9. Storybook Design Library (`packages/shared-ui`)
+## 9. Storybook Design Library (`packages/shared-ui`)
 
 Includes standard documentation and test states for core UI elements:
 
@@ -169,7 +169,7 @@ npm run storybook
 
 ---
 
-# 10. Development & Verification Commands
+## 10. Development & Verification Commands
 
 For full workflow options, refer to [workflow.md](file:///Users/devprasan/Documents/video-management-software-with-MFE/workflow.md).
 
@@ -193,7 +193,7 @@ npm run lint
 
 ---
 
-# 11. CI/CD Quality Controls
+## 11. CI/CD Quality Controls
 
 A GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on push and pull requests to validate code quality:
 
