@@ -46,8 +46,8 @@ export default function App() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch = activeSearch
       ? (product.title || '').toLowerCase().includes(activeSearch.toLowerCase()) ||
-      (product.description || '').toLowerCase().includes(activeSearch.toLowerCase()) ||
-      (product.brand || '').toLowerCase().includes(activeSearch.toLowerCase())
+        (product.description || '').toLowerCase().includes(activeSearch.toLowerCase()) ||
+        (product.brand || '').toLowerCase().includes(activeSearch.toLowerCase())
       : true;
 
     const matchesCategory = activeCategory === 'All' ? true : product.category === activeCategory;

@@ -78,22 +78,26 @@ This project demonstrates:
 # 6. Responsibilities & Domains
 
 ### Host Shell
+
 - **Auth**: Manages user session state and sign-in/sign-out logic.
 - **Shell Layout**: Renders global headers, sidebar navigation, dynamic breadcrumbs, and user profiles.
 - **Global Cart**: Renders the checkout shopping cart drawer widget in the header.
 - **Error Handlers**: Mounts error boundaries so failing remotes don't crash the container.
 
 ### Product Catalog MFE
+
 - **Product Indexing**: Queries categories and product databases.
 - **Search & Filters**: Handles keyword matches and category tag sorting.
 - **Selections**: Updates the shared store's `selectedProduct` when a item card is clicked.
 
 ### Product Details MFE
+
 - **Metadata Viewer**: Render details, price calculations, brand, and reviews count.
 - **Galleries**: Displays primary product previews and high-res image switchers.
 - **Checkout Integrator**: Dispatches `addToCart()` events back to the global checkout store.
 
 ### Product Reviews MFE
+
 - **Feeds**: Displays list of comments and customer review cards for the selected product.
 - **CRUD Operations**: Allows users to post reviews, edit comments, or delete feedback entries.
 
@@ -151,12 +155,14 @@ mfe_favorites_db           [{ uid, productIds: [] }]
 # 9. Storybook Design Library (`packages/shared-ui`)
 
 Includes standard documentation and test states for core UI elements:
+
 - **Buttons**: Primary, secondary, outline, loading, and disabled states.
 - **Cards**: General containers, product list cards, and review boxes.
 - **Indicators**: Spinners, Badges, and Theme toggles.
 - **Forms**: Search inputs, custom dropdown selectors, and modal overlays.
 
 Run Storybook locally:
+
 ```bash
 npm run storybook
 ```
@@ -190,6 +196,7 @@ npm run lint
 # 11. CI/CD Quality Controls
 
 A GitHub Actions pipeline (`.github/workflows/ci.yml`) runs on push and pull requests to validate code quality:
+
 1. **Dependency Installation**: Restores node modules cached between builds.
 2. **Lint Validation**: Verifies code complies with project ESLint rules.
 3. **Format Verification**: Assures files conform to Prettier styling limits.

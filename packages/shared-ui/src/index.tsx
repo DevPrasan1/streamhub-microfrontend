@@ -51,10 +51,10 @@ export const Dropdown: React.FC<DropdownProps> = ({ label, children, className =
         {label}
       </button>
       {isOpen && (
-        <div className={`absolute right-0 mt-2 rounded-md shadow-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${menuClassName}`}>
-          <div className="py-1">
-            {children}
-          </div>
+        <div
+          className={`absolute right-0 mt-2 rounded-md shadow-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-50 ${menuClassName}`}
+        >
+          <div className="py-1">{children}</div>
         </div>
       )}
     </div>
