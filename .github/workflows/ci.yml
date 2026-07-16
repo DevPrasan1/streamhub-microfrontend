@@ -69,7 +69,7 @@ jobs:
           netlify-config-path: apps/product-catalog/netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_CATALOG }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID_CATALOG }}
 
   deploy-details:
     name: Deploy product-details
@@ -102,7 +102,7 @@ jobs:
           netlify-config-path: apps/product-details/netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_DETAILS }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID_DETAILS }}
 
   deploy-reviews:
     name: Deploy product-reviews
@@ -135,7 +135,7 @@ jobs:
           netlify-config-path: apps/product-reviews/netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_REVIEWS }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID_REVIEWS }}
 
   # ─────────────────────────────────────────────────────
   # JOB 3: Deploy Host AFTER all remotes are deployed
@@ -162,9 +162,9 @@ jobs:
       - name: Build host (with production remote URLs)
         run: npm run build -w @mfe/host
         env:
-          VITE_REMOTE_CATALOG: ${{ secrets.VITE_REMOTE_CATALOG }}
-          VITE_REMOTE_DETAILS: ${{ secrets.VITE_REMOTE_DETAILS }}
-          VITE_REMOTE_REVIEWS: ${{ secrets.VITE_REMOTE_REVIEWS }}
+          VITE_REMOTE_CATALOG: ${{ vars.VITE_REMOTE_CATALOG }}
+          VITE_REMOTE_DETAILS: ${{ vars.VITE_REMOTE_DETAILS }}
+          VITE_REMOTE_REVIEWS: ${{ vars.VITE_REMOTE_REVIEWS }}
 
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3
@@ -176,4 +176,4 @@ jobs:
           netlify-config-path: apps/host/netlify.toml
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_HOST }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID_HOST }}
