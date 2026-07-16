@@ -134,13 +134,20 @@ push to branch
    [host]                            ← deployed after all remotes are live
 ```
 
-### Required GitHub Secrets
+### Required GitHub Secrets and Variables
 
-Go to **GitHub repo → Settings → Secrets and variables → Actions → New repository secret** and add:
+Because some configurations are sensitive (secrets) and others are plain-text configs (variables), you need to configure them in different tabs under your environment or repository settings:
 
-| Secret Name               | How to get it                                              |
+1. **Secrets** (go to **Settings → Secrets and variables → Actions → Secrets**):
+
+| Secret Name          | How to get it                                             |
+| -------------------- | --------------------------------------------------------- |
+| `NETLIFY_AUTH_TOKEN` | Netlify → User Settings → Applications → New access token |
+
+2. **Variables** (go to **Settings → Secrets and variables → Actions → Variables**):
+
+| Variable Name             | Value / How to get it                                      |
 | ------------------------- | ---------------------------------------------------------- |
-| `NETLIFY_AUTH_TOKEN`      | Netlify → User Settings → Applications → New access token  |
 | `NETLIFY_SITE_ID_CATALOG` | Netlify catalog site → Site Configuration → Site ID        |
 | `NETLIFY_SITE_ID_DETAILS` | Netlify details site → Site Configuration → Site ID        |
 | `NETLIFY_SITE_ID_REVIEWS` | Netlify reviews site → Site Configuration → Site ID        |

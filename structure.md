@@ -39,7 +39,7 @@ Because we configured paths inside `tsconfig.json`, your IDE understands imports
 ### Host vs. Remote
 
 - **Host (`apps/host`)**: The "container" or "shell". It owns the main page layout, routing, header (with the shopping cart widget), sidebar, and authentication state. It decides when to load the other applications.
-- **Remotes (`video-browser` for Catalog, `player` for Details, `community` for Reviews)**: Independent micro-frontend apps. They build their own code and expose specific entry components for the Host to import.
+- **Remotes (`product-catalog` for Catalog, `product-details` for Details, `product-reviews` for Reviews)**: Independent micro-frontend apps. They build their own code and expose specific entry components for the Host to import.
 
 ### How they connect
 
@@ -51,7 +51,7 @@ Because we configured paths inside `tsconfig.json`, your IDE understands imports
    - Product Reviews: `http://localhost:5003/assets/remoteEntry.js`
 4. In the host source code (`apps/host/src/App.tsx`), we load them dynamically using React's lazy loading:
    ```typescript
-   const ProductCatalogApp = React.lazy(() => import('video_browser/VideoBrowserApp'));
+   const ProductCatalogApp = React.lazy(() => import('product_catalog/ProductCatalogApp'));
    ```
 
 ### Shared Singletons

@@ -73,9 +73,9 @@ Inside the Host shell's Vite config, register the new remote entry URL:
 
 ```typescript
       remotes: {
-        video_browser: 'http://localhost:5001/assets/remoteEntry.js',
-        player: 'http://localhost:5002/assets/remoteEntry.js',
-        community: 'http://localhost:5003/assets/remoteEntry.js',
+        product_catalog: 'http://localhost:5001/assets/remoteEntry.js',
+        product_details: 'http://localhost:5002/assets/remoteEntry.js',
+        product_reviews: 'http://localhost:5003/assets/remoteEntry.js',
         dashboard: 'http://localhost:5004/assets/remoteEntry.js', // Add dashboard port
       }
 ```

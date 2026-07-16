@@ -20,11 +20,11 @@ npm install
 ### 📦 Workflow A: Product Catalog Team
 
 - **Focus**: Modifying product grids, category filter tabs, search filters, pagination logic, and ProductCard visuals.
-- **MFE Location**: `apps/video-browser` (mapped as the Catalog remote)
+- **MFE Location**: `apps/product-catalog` (mapped as the Catalog remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode (Sub-millisecond HMR)**
     ```bash
-    npm run dev -w @mfe/video-browser
+    npm run dev -w @mfe/product-catalog
     ```
     _Loads the MFE independently on [http://localhost:5001](http://localhost:5001). Useful for building isolated UI components without running the Host container or other MFEs._
   - **Option B: Embedded in Host container**
@@ -39,11 +39,11 @@ npm install
 ### 🔍 Workflow B: Product Details Team
 
 - **Focus**: Product details presentation, gallery thumbnails switcher, brand specs, and the "Add to Cart" checkout synchronizer.
-- **MFE Location**: `apps/player` (mapped as the Details remote)
+- **MFE Location**: `apps/product-details` (mapped as the Details remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode**
     ```bash
-    npm run dev -w @mfe/player
+    npm run dev -w @mfe/product-details
     ```
     _Loads the player independently on [http://localhost:5002](http://localhost:5002)._
   - **Option B: Embedded in Host container**
@@ -57,11 +57,11 @@ npm install
 ### 💬 Workflow C: Product Reviews Team
 
 - **Focus**: Asynchronous product reviews fetch queries, custom review additions, deletes, and the user profile views.
-- **MFE Location**: `apps/community` (mapped as the Reviews remote)
+- **MFE Location**: `apps/product-reviews` (mapped as the Reviews remote)
 - **Local Run Commands**:
   - **Option A: Standalone Mode**
     ```bash
-    npm run dev -w @mfe/community
+    npm run dev -w @mfe/product-reviews
     ```
     _Loads the community panel on [http://localhost:5003](http://localhost:5003)._
   - **Option B: Embedded in Host container**
@@ -127,8 +127,8 @@ Here is a directory of the root script commands and exactly what they do:
 - **`npm run preview`**:
   - Previews the pre-built static MFE assets locally.
 - **`npm run watch`**:
-  - Spawns parallel background file-watchers for the `video-browser`, `player`, and `community` MFE projects.
+  - Spawns parallel background file-watchers for the `product-catalog`, `product-details`, and `product-reviews` MFE projects.
 - **`npm run dev`**:
   - Spawns Vite development servers for all workspaces in parallel on ports `5001-5003`.
-- **`npm run dev:host` / `dev:browser` / `dev:player` / `dev:community`**:
+- **`npm run dev:host` / `dev:catalog` / `dev:details` / `dev:reviews`**:
   - Spawns dev server for the individual targeted micro-frontend application.
