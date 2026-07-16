@@ -23,9 +23,6 @@
 >
 > 🚀 **Deployment Guide**: For instructions on deploying the host and remotes to Netlify, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
-
-
-
 ## 📌 Table of Contents
 
 - [✨ Features](#-features)
@@ -34,6 +31,7 @@
 - [🚀 Use This Repository](#-use-this-repository)
 - [🚀 Getting Started](#-getting-started)
 - [🏗️ High-Level Architecture](#️-high-level-architecture)
+- [📸 MFE Composition Diagram](#-mfe-composition-diagram)
 - [⚙️ How Module Federation Works Here](#️-how-module-federation-works-here)
 - [⚡ Performance Metrics](#-performance-metrics)
 - [🗺️ Roadmap](#️-roadmap)
@@ -61,13 +59,13 @@
 
 ## Preview & Screenshots
 
-| Homepage (Light Theme) | Homepage (Dark Theme) |
-| :---: | :---: |
-| ![Home Light](./assets/screenshots/home_1.jpeg) | ![Home Dark](./assets/screenshots/home_1_dark_theme.jpeg) |
-| **Product Detail** | **Customer Reviews** |
+|                   Homepage (Light Theme)                   |                    Homepage (Dark Theme)                    |
+| :--------------------------------------------------------: | :---------------------------------------------------------: |
+|      ![Home Light](./assets/screenshots/home_1.jpeg)       |  ![Home Dark](./assets/screenshots/home_1_dark_theme.jpeg)  |
+|                     **Product Detail**                     |                    **Customer Reviews**                     |
 | ![Details](./assets/screenshots/product_detail_top_1.jpeg) | ![Reviews](./assets/screenshots/product_detail_bottom.jpeg) |
-| **Cart Dropdown** | **Sign In Screen** |
-| ![Cart](./assets/screenshots/product_cart.jpeg) | ![Sign In](./assets/screenshots/login_1.jpeg) |
+|                     **Cart Dropdown**                      |                     **Sign In Screen**                      |
+|      ![Cart](./assets/screenshots/product_cart.jpeg)       |        ![Sign In](./assets/screenshots/login_1.jpeg)        |
 
 ## 💡 Why this boilerplate?
 
@@ -84,7 +82,7 @@ This repository demonstrates how to build scalable React Micro Frontends using V
 
 ## 🚀 Use This Repository
 
-Click **Use this template** to create your own project. 
+Click **Use this template** to create your own project.
 
 No need to fork. The boilerplate is ready for production development.
 
@@ -127,6 +125,16 @@ To get started locally:
 
 ---
 
+## 📸 MFE Composition Diagram
+
+These diagrams show how the host container and remote micro-frontends compose the screens visually:
+
+### 1. Home Catalog Page Composition
+![Home Catalog Page Composition](./assets/screenshots/annotated_home_catalog.png)
+
+### 2. Product Detail & Reviews Page Composition
+![Product Detail & Reviews Page Composition](./assets/screenshots/annotated_detail-page.png)
+
 ## ⚙️ How Module Federation Works Here
 
 Each micro frontend is independently built and deployed while sharing common libraries at runtime using Module Federation:
@@ -141,15 +149,15 @@ Each micro frontend is independently built and deployed while sharing common lib
 
 The values below represent optimized builds running locally:
 
-| Metric | Host Shell Container | Product Catalog MFE | Product Details MFE | Product Reviews MFE |
-| :--- | :---: | :---: | :---: | :---: |
-| **Startup Time (Dev)** | ~95ms | ~90ms | ~92ms | ~91ms |
-| **Build Time** | ~740ms | ~590ms | ~740ms | ~690ms |
-| **Production Bundle Size** | ~106 kB | ~98 kB | ~98 kB | ~98 kB |
-| **Remote Entry script** | - | 3.74 kB | 3.44 kB | 3.44 kB |
-| **Lighthouse Performance** | 99+ | 99+ | 99+ | 99+ |
+| Metric                     | Host Shell Container | Product Catalog MFE | Product Details MFE | Product Reviews MFE |
+| :------------------------- | :------------------: | :-----------------: | :-----------------: | :-----------------: |
+| **Startup Time (Dev)**     |        ~95ms         |        ~90ms        |        ~92ms        |        ~91ms        |
+| **Build Time**             |        ~740ms        |       ~590ms        |       ~740ms        |       ~690ms        |
+| **Production Bundle Size** |       ~106 kB        |       ~98 kB        |       ~98 kB        |       ~98 kB        |
+| **Remote Entry script**    |          -           |       3.74 kB       |       3.44 kB       |       3.44 kB       |
+| **Lighthouse Performance** |         99+          |         99+         |         99+         |         99+         |
 
-> ℹ️ *Note: Measured on an Apple M4 using production builds. Results may vary depending on hardware and project size.*
+> ℹ️ _Note: Measured on an Apple M4 using production builds. Results may vary depending on hardware and project size._
 
 ---
 
