@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master, main, boilerplate]
+    branches: [boilerplate]
   pull_request:
-    branches: [master, main, boilerplate]
+    branches: [boilerplate]
 
 jobs:
   # ─────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────
   # JOB 2: Deploy remote MFEs to Netlify (parallel)
-  # Only runs on push to main/boilerplate (not PRs)
+  # Only runs on push to boilerplate (not PRs)
   # ─────────────────────────────────────────────────────
   deploy-catalog:
     name: Deploy product-catalog
