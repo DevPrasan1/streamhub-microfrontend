@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { useUIStore } from '@mfe/shared-store';
+import { useUIStore, useProductStore } from '@mfe/shared-store';
 
 export default function CategorySelector() {
   const { theme } = useUIStore();
+  const { activeCategory, setActiveCategory } = useProductStore();
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams<{ categoryName?: string }>();
-
-  const activeCategory = params.categoryName || 'All';
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -30,6 +28,20 @@ export default function CategorySelector() {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const match = location.pathname.match(/\/category\/([^/]+)/);
+    if (match) {
+      const cat = decodeURIComponent(match[1]);
+      if (activeCategory !== cat) {
+        setActiveCategory(cat);
+      }
+    } else if (location.pathname === '/') {
+      if (activeCategory !== 'All') {
+        setActiveCategory('All');
+      }
+    }
+  }, [location.pathname, activeCategory, setActiveCategory]);
 
   const formatCategoryName = (name: string) => {
     return name.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
@@ -53,6 +65,7 @@ export default function CategorySelector() {
           <button
             key={category}
             onClick={() => {
+              setActiveCategory(category);
               if (navigate) {
                 if (category === 'All') {
                   navigate('/');
