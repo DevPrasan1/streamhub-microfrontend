@@ -14,11 +14,13 @@
 
 ## Preview & Screenshots
 
-| Homepage (Light Theme) | Homepage (Dark Theme) | Cart Dropdown |
-| :---: | :---: | :---: |
-| ![Home Light](./assets/screenshots/home_1.jpeg) | ![Home Dark](./assets/screenshots/home_1_dark_theme.jpeg) | ![Cart](./assets/screenshots/product_cart.jpeg) |
-| **Product Detail** | **Customer Reviews** | **Sign In Screen** |
-| ![Details](./assets/screenshots/product_detail_top_1.jpeg) | ![Reviews](./assets/screenshots/product_detail_bottom.jpeg) | ![Sign In](./assets/screenshots/login_1.jpeg) |
+| Homepage (Light Theme) | Homepage (Dark Theme) |
+| :---: | :---: |
+| ![Home Light](./assets/screenshots/home_1.jpeg) | ![Home Dark](./assets/screenshots/home_1_dark_theme.jpeg) |
+| **Product Detail** | **Customer Reviews** |
+| ![Details](./assets/screenshots/product_detail_top_1.jpeg) | ![Reviews](./assets/screenshots/product_detail_bottom.jpeg) |
+| **Cart Dropdown** | **Sign In Screen** |
+| ![Cart](./assets/screenshots/product_cart.jpeg) | ![Sign In](./assets/screenshots/login_1.jpeg) |
 
 ---
 
