@@ -130,9 +130,11 @@ To get started locally:
 These diagrams show how the host container and remote micro-frontends compose the screens visually:
 
 ### 1. Home Catalog Page Composition
+
 ![Home Catalog Page Composition](./assets/screenshots/annotated_home_catalog.png)
 
 ### 2. Product Detail & Reviews Page Composition
+
 ![Product Detail & Reviews Page Composition](./assets/screenshots/annotated_detail-page.png)
 
 ## ⚙️ How Module Federation Works Here

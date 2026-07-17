@@ -50,8 +50,9 @@ export default function MainLayout() {
 
   return (
     <div
-      className={`h-screen flex flex-col ${theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'
-        }`}
+      className={`h-screen flex flex-col ${
+        theme === 'dark' ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'
+      }`}
     >
       {/* Header */}
       <Header />

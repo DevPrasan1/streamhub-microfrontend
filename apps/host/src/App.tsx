@@ -8,7 +8,6 @@ import ProductPage from './pages/ProductPage';
 import LoginPage from './pages/LoginPage';
 import DiscoverProductsPage from './pages/DiscoverProductsPage';
 
-
 function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const { theme } = useUIStore();
@@ -21,8 +20,9 @@ function ProfilePage() {
       </h2>
       {user ? (
         <div
-          className={`p-6 rounded-xl border max-w-md ${theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-850'
-            }`}
+          className={`p-6 rounded-xl border max-w-md ${
+            theme === 'dark' ? 'bg-zinc-900 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-850'
+          }`}
         >
           <div className="flex items-center gap-4">
             <Avatar name={user.displayName} src={user.photoURL} className="w-16 h-16 text-xl" />
